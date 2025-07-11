@@ -42,7 +42,7 @@ export async function POST(request: Request) {
   } catch (error: any) {
     console.error("Error creating order:", error);
     return NextResponse.json<ErrorResponse>(
-      { error: error.message || "Failed to create order" },
+      { error: error || "Failed to create order" },
       { status: 500 }
     );
   }
