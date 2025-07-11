@@ -3,13 +3,12 @@
 
 import React from 'react';
 import Footer from '../components/Footer';
-import Hero3 from '@/components/Hero3';
-import CategorySection from '@/components/CategorySection';
-import FeaturedProducts from '@/components/FeaturedProducts';
-import ArtistShowcase from '@/components/ArtistShowcase';
-import TestimonialSection from '@/components/TestimonialSection';
 // import AdBanner from '../components/AdBanner';
-
+import CategorySection from '../components/CategorySection';
+import FeaturedProducts from '../components/FeaturedProducts';
+import ArtistShowcase from '../components/ArtistShowcase';
+import TestimonialSection from '../components/TestimonialSection';
+import Hero3 from '@/components/Hero3';
 // import BlogSection from '../components/BlogSection';
 
 export default function HomePage() {

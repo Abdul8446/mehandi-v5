@@ -9,7 +9,6 @@ import { ProductProvider } from "@/contexts/ProductContext"
 import { WishlistProvider } from "@/contexts/WishlistContext"
 
 
-
 export function Providers({ children }: { children: React.ReactNode }) {
   return <AuthProvider>
             <AdminAuthProvider>
