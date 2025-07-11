@@ -40,9 +40,9 @@ export async function POST(request: Request) {
       },
     });
   } catch (error: any) {
-    console.error("Error creating order:", error.message);
+    console.error("Error creating order:", error?.message || error);
     return NextResponse.json<ErrorResponse>(
-      { error: error || "Failed to create order" },
+      { error: error?.message || error || "Failed to create order" },
       { status: 500 }
     );
   }
