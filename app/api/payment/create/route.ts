@@ -36,13 +36,13 @@ export async function POST(request: Request) {
           orderId: response.orderId,
           redirectUrl: response.redirectUrl,
           callbackUrl: redirectUrl,
-          checkStatusUrl: `http://localhost:3000/api/payment/check-status?merchantOrderId=${merchantOrderId}`,
+          checkStatusUrl: `${process.env.NEXT_PUBLIC_BASE_URL}/api/payment/check-status?merchantOrderId=${merchantOrderId}`,
       },
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error creating order:", error);
     return NextResponse.json<ErrorResponse>(
-      { error: "Error creating order" },
+      { error: error.message || "Failed to create order" },
       { status: 500 }
     );
   }
