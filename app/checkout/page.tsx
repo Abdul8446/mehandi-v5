@@ -99,13 +99,18 @@ const CheckoutPage = () => {
         }),
       });
 
+      const data = await response.json();
+
       console.log(response, 'Response from payment initiation');
 
       if (!response.ok) {
-        throw new Error('Failed to initiate PhonePe payment');
+        throw new Error(
+           data.error || // From your backend's error response
+            data.message || // Alternative error field
+        'Failed to initiate PhonePe payment'
+        );
       }
       
-      const data = await response.json();
       toast.dismiss();
       
       if (data.data.success && data.data.redirectUrl) {
