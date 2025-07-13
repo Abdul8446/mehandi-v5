@@ -78,12 +78,12 @@ export async function GET(request: Request) {
       new URL(`/order-confirmation/${merchantOrderId}`, request.url)
     );
 
-  } catch (error) {
-    console.error("Error getting order status:", error);
+  } catch (error: any) {
+    console.error("Error getting order status:", error.message || error);
     return NextResponse.json(
       { 
         success: false,
-        error: "Error getting status" 
+        error: error.message || error || "Error getting status"
       },
       { status: 500 }
     );
