@@ -87,7 +87,7 @@ export async function POST(request: Request) {
       items,
       shippingCost: body.shippingCost,
       totalAmount: body.totalAmount,
-      paymentStatus: 'Paid', // Default status
+      paymentStatus: 'Pending', // Default status
       status: 'Confirmed', // Default status
       shippingAddress: {
         address: body.shippingAddress.address,

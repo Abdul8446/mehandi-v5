@@ -1,6 +1,55 @@
+// // // app/api/check-status/route.ts
+// // import { NextResponse } from 'next/server';
+// // import { getClient } from '@/lib/pg-client';
+
+// // export async function GET(request: Request) {
+// //   try {
+// //     const { searchParams } = new URL(request.url);
+// //     const merchantOrderId = searchParams.get('merchantOrderId');
+
+// //     if (!merchantOrderId) {
+// //       return NextResponse.json(
+// //         { 
+// //           success: false,
+// //           error: "MerchantOrderId is required" 
+// //         },
+// //         { status: 400 }
+// //       );
+// //     }
+
+// //     const client = getClient();
+// //     const response = await client.getOrderStatus(merchantOrderId);
+    
+// //     // Format response to match frontend expectations
+// //     return NextResponse.json({
+// //       success: true,
+// //       data: {
+// //         status: response.state === "COMPLETED" ? "SUCCESS" : "FAILED",
+// //         orderId: merchantOrderId,
+// //         // paymentId: response.paymentId,
+// //         amount: response.amount
+// //       }
+// //     });
+
+// //   } catch (error) {
+// //     console.error("Error getting order status:", error);
+// //     return NextResponse.json(
+// //       { 
+// //         success: false,
+// //         error: "Error getting status" 
+// //       },
+// //       { status: 500 }
+// //     );
+// //   }
+// // }
+
+
+
 // // app/api/check-status/route.ts
 // import { NextResponse } from 'next/server';
 // import { getClient } from '@/lib/pg-client';
+// import { redirect } from 'next/navigation';
+// import Order from '@/models/Order';
 
 // export async function GET(request: Request) {
 //   try {
@@ -20,72 +69,119 @@
 //     const client = getClient();
 //     const response = await client.getOrderStatus(merchantOrderId);
     
-//     // Format response to match frontend expectations
-//     return NextResponse.json({
-//       success: true,
-//       data: {
-//         status: response.state === "COMPLETED" ? "SUCCESS" : "FAILED",
-//         orderId: merchantOrderId,
-//         // paymentId: response.paymentId,
-//         amount: response.amount
-//       }
-//     });
+//     // Update payment status in database
+//     const paymentStatus = response.state === "COMPLETED" ? 'Paid' : 'Failed';
+//     await Order.findOneAndUpdate({ orderId: merchantOrderId }, { paymentStatus });
 
-//   } catch (error) {
-//     console.error("Error getting order status:", error);
+//     // // Redirect to confirmation page with order ID
+//     // return NextResponse.redirect(
+//     //   new URL(`/order-confirmation/${merchantOrderId}`, request.url)
+//     // );
+
+//     // Redirect with payment status in query params
+//     const redirectUrl = new URL(`/order-confirmation/${merchantOrderId}`, request.url);
+//     redirectUrl.searchParams.set('payment_status', response.state);
+    
+//     if (response.state !== "COMPLETED") {
+//       redirectUrl.searchParams.set('error', response.errorCode || 'payment_failed');
+//     }
+
+//     return NextResponse.redirect(redirectUrl);
+
+//   } catch (error: any) {
+//     console.error("Error getting order status:", error.message || error);
 //     return NextResponse.json(
 //       { 
 //         success: false,
-//         error: "Error getting status" 
+//         error: error.message || error || "Error getting status"
 //       },
 //       { status: 500 }
 //     );
 //   }
 // }
 
-
-
 // app/api/check-status/route.ts
 import { NextResponse } from 'next/server';
 import { getClient } from '@/lib/pg-client';
-import { redirect } from 'next/navigation';
 import Order from '@/models/Order';
 
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const merchantOrderId = searchParams.get('merchantOrderId');
+    const errorCode = searchParams.get('errorCode');
 
     if (!merchantOrderId) {
-      return NextResponse.json(
-        { 
-          success: false,
-          error: "MerchantOrderId is required" 
-        },
-        { status: 400 }
-      );
+      return redirectToErrorPage('missing_order_id');
     }
 
     const client = getClient();
-    const response = await client.getOrderStatus(merchantOrderId);
     
-    // Update payment status in database
-    const paymentStatus = response.state === "COMPLETED" ? 'Paid' : 'Failed';
-    await Order.findOneAndUpdate({ orderId: merchantOrderId }, { paymentStatus });
+    // Handle explicit payment errors
+    if (errorCode) {
+      await updateOrderStatus(merchantOrderId, 'Failed');
+      return redirectToFailurePage(merchantOrderId, errorCode);
+    }
 
-    // Redirect to confirmation page with order ID
-    return NextResponse.redirect(
-      new URL(`/order-confirmation/${merchantOrderId}`, request.url)
-    );
+    // Normal status check flow
+    const response = await client.getOrderStatus(merchantOrderId);
+    const paymentStatus = response.state === "COMPLETED" ? 'Paid' : 'Failed';
+    await updateOrderStatus(merchantOrderId, paymentStatus);
+
+    // Only allow redirect to order page for Paid or Failed statuses
+    if (paymentStatus === 'Paid') {
+      return redirectToOrderPage(merchantOrderId);
+    }
+
+     // Handle failed payments
+    if (paymentStatus === 'Failed') {
+      return redirectToFailurePage(merchantOrderId, response.errorCode);
+    }
+
+    // For any other status, redirect to a pending page or error page
+    return redirectToPendingPage(merchantOrderId);
 
   } catch (error: any) {
-    console.error("Error getting order status:", error.message || error);
-    return NextResponse.json(
-      { 
-        success: false,
-        error: error.message || error || "Error getting status"
-      },
-      { status: 500 }
-    );
+    console.error("Error in check-status:", error);
+    return redirectToErrorPage('server_error', error.message);
   }
+}
+
+// Helper functions
+async function updateOrderStatus(orderId: string, status: string) {
+  await Order.findOneAndUpdate(
+    { orderId },
+    { 
+      paymentStatus: status,
+    }
+  );
+}
+
+function redirectToOrderPage(orderId: string) {
+  const url = new URL(`/order-confirmation/${orderId}`, process.env.NEXT_PUBLIC_BASE_URL);
+  return NextResponse.redirect(url);
+}
+
+function redirectToPendingPage(orderId: string) {
+  const url = new URL('/payment-pending', process.env.NEXT_PUBLIC_BASE_URL);
+  url.searchParams.set('orderId', orderId);
+  return NextResponse.redirect(url);
+}
+
+function redirectToFailurePage(orderId: string, errorCode?: string) {
+  const url = new URL('/payment-failed', process.env.NEXT_PUBLIC_BASE_URL);
+  url.searchParams.set('orderId', orderId);
+  if (errorCode) {
+    url.searchParams.set('errorCode', errorCode);
+  }
+  return NextResponse.redirect(url);
+}
+
+function redirectToErrorPage(errorType: string, message?: string) {
+  const url = new URL('/payment-error', process.env.NEXT_PUBLIC_BASE_URL);
+  url.searchParams.set('error', errorType);
+  if (message) {
+    url.searchParams.set('message', encodeURIComponent(message));
+  }
+  return NextResponse.redirect(url);
 }
