@@ -71,7 +71,7 @@ export async function GET(request: Request) {
     
     // Update payment status in database
     const paymentStatus = response.state === "COMPLETED" ? 'Paid' : 'Failed';
-    await Order.findByIdAndUpdate({ orderId: merchantOrderId }, { paymentStatus });
+    await Order.findOneAndUpdate({ orderId: merchantOrderId }, { paymentStatus });
 
     // Redirect to confirmation page with order ID
     return NextResponse.redirect(

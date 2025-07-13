@@ -1,3 +1,4 @@
+// app/api/payment/create/route.ts
 import { NextResponse } from "next/server";
 import { getClient, randomUUID } from "@/lib/pg-client";
 import { StandardCheckoutPayRequest } from "pg-sdk-node";
@@ -21,7 +22,7 @@ export async function POST(request: Request) {
     const requestBody = StandardCheckoutPayRequest.builder()
       .merchantOrderId(merchantOrderId)
       .amount(amount*100) // Convert to paise
-      .redirectUrl(redirectUrl)
+      // .redirectUrl(redirectUrl)
       .build();
 
     console.log("Initiating payment with request body:", requestBody);  
