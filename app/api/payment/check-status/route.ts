@@ -1,6 +1,6 @@
 // // app/api/check-status/route.ts
 // import { NextResponse } from 'next/server';
-// import { getClient } from '@/lib/pg-client'; // Assuming you have a client setup
+// import { getClient } from '@/lib/pg-client';
 
 // export async function GET(request: Request) {
 //   try {
@@ -9,27 +9,35 @@
 
 //     if (!merchantOrderId) {
 //       return NextResponse.json(
-//         { error: "MerchantOrderId is required" },
+//         { 
+//           success: false,
+//           error: "MerchantOrderId is required" 
+//         },
 //         { status: 400 }
 //       );
 //     }
 
 //     const client = getClient();
 //     const response = await client.getOrderStatus(merchantOrderId);
-//     const status = response.state;
-
-//     const frontendBaseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
-
-//     if (status === "COMPLETED") {
-//       return NextResponse.redirect(`${frontendBaseUrl}/success`);
-//     } else {
-//       return NextResponse.redirect(`${frontendBaseUrl}/failure`);
-//     }
     
+//     // Format response to match frontend expectations
+//     return NextResponse.json({
+//       success: true,
+//       data: {
+//         status: response.state === "COMPLETED" ? "SUCCESS" : "FAILED",
+//         orderId: merchantOrderId,
+//         // paymentId: response.paymentId,
+//         amount: response.amount
+//       }
+//     });
+
 //   } catch (error) {
 //     console.error("Error getting order status:", error);
 //     return NextResponse.json(
-//       { error: "Error getting status" },
+//       { 
+//         success: false,
+//         error: "Error getting status" 
+//       },
 //       { status: 500 }
 //     );
 //   }
@@ -40,6 +48,8 @@
 // app/api/check-status/route.ts
 import { NextResponse } from 'next/server';
 import { getClient } from '@/lib/pg-client';
+import { redirect } from 'next/navigation';
+import Order from '@/models/Order';
 
 export async function GET(request: Request) {
   try {
@@ -59,16 +69,14 @@ export async function GET(request: Request) {
     const client = getClient();
     const response = await client.getOrderStatus(merchantOrderId);
     
-    // Format response to match frontend expectations
-    return NextResponse.json({
-      success: true,
-      data: {
-        status: response.state === "COMPLETED" ? "SUCCESS" : "FAILED",
-        orderId: merchantOrderId,
-        // paymentId: response.paymentId,
-        amount: response.amount
-      }
-    });
+    // Update payment status in database
+    const paymentStatus = response.state === "COMPLETED" ? 'Paid' : 'Failed';
+    await Order.findByIdAndUpdate({ orderId: merchantOrderId }, { paymentStatus });
+
+    // Redirect to confirmation page with order ID
+    return NextResponse.redirect(
+      new URL(`/order-confirmation/${merchantOrderId}`, request.url)
+    );
 
   } catch (error) {
     console.error("Error getting order status:", error);

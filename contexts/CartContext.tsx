@@ -6,6 +6,7 @@ import { useAuth } from './AuthContext';
 interface Product {
   _id: string;
   name: string;
+  category: string;
   price: number;
   image: string;
   quantity: number;
@@ -27,6 +28,9 @@ interface CartContextType {
   shippingCost: number;
   grandTotal: number;
   isLoading: boolean;
+  isMinimumOrderMet: boolean;
+  shippingState: string;
+  setShippingState: ( state: string ) => void;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -43,6 +47,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [items, setItems] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { isAuthenticated, user } = useAuth();
+  const [shippingState, setShippingState] = useState<string>('Kerala');
 
   useEffect(() => {
     const fetchCart = async () => {
@@ -174,12 +179,15 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const totalPrice = items.reduce((total, item) => total + item.price * item.quantity, 0);
   const totalWeight = items.reduce((total, item) => total + (item.weight || 0) * item.quantity, 0);
 
+  // Check if minimum order amount is met
+  const isMinimumOrderMet = totalPrice >= 0;
+
   // Special case: if single product named "test", set grand total to 1
   const isTestProductSpecialCase = 
     items.length === 1 && 
     items[0].name.toLowerCase() === 'test';
 
-  const shippingCost = isTestProductSpecialCase ? 0 : (totalWeight <= 400 ? 50 : 80);
+  const shippingCost = isTestProductSpecialCase ? 0 :(shippingState === 'Kerala' ? (totalWeight <= 400 ? 50 : 80): 80);
   const grandTotal = isTestProductSpecialCase ? 1 : (totalPrice + shippingCost);
 
   // const shippingCost = totalWeight <= 400 ? 50 : 80;
@@ -198,7 +206,10 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         totalPrice,
         shippingCost,
         grandTotal,
-        isLoading
+        isLoading,
+        isMinimumOrderMet,
+        shippingState,
+        setShippingState
       }}
     >
       {children}

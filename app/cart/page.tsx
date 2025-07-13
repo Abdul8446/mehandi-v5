@@ -16,7 +16,8 @@ const Cart = () => {
     totalWeight,
     totalPrice,
     shippingCost,
-    grandTotal
+    grandTotal,
+    isMinimumOrderMet
   } = useCart();
 
   console.log(totalWeight, 'totalWeight');
@@ -155,16 +156,21 @@ const Cart = () => {
                     <p className="text-xs text-gray-500 mt-1">
                       {shippingCost === 0 ? 
                         'Free shipping applied' : 
-                        `Add ₹${(999 - totalPrice).toFixed(2)} more for free shipping`
+                        `Add ₹${(699 - totalPrice).toFixed(2)} more for free shipping`
                       }
                     </p>
                   </div>
                   
-                  <Link href="/checkout" className="w-full btn-primary block text-center mt-6">
-                    <Button className='w-full' variant='secondary'>
+                  <Link href={isMinimumOrderMet ? "/checkout" : "#"} className="w-full btn-primary block text-center mt-6">
+                    <Button className='w-full' variant='secondary' disabled={!isMinimumOrderMet}>
                       Proceed to Checkout
                     </Button>
                   </Link>
+                  {!isMinimumOrderMet && (
+                    <p className="text-sm text-red-600 mt-2 text-center">
+                      Minimum order amount of ₹100 required for checkout
+                    </p>
+                  )}
                   
                   <div className="mt-4 text-xs text-gray-500 text-center">
                     <p>We accept:</p>

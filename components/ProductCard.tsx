@@ -47,6 +47,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         await addToCart({
           _id: product._id,
           name: product.name,
+          category: product.category,
           price: product.price,
           image: product.images[0],
           weight: product.specifications?.weight || 0,

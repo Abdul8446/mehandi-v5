@@ -1,5 +1,5 @@
 'use client';
-import { use, useEffect, useRef, useState } from 'react';
+import React, { use, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { CreditCard, Truck, ShieldCheck, ArrowLeft } from 'lucide-react';
 import { useCart } from '../../contexts/CartContext';
@@ -7,7 +7,6 @@ import { useAuth } from '@/contexts/AuthContext';
 import toast from 'react-hot-toast';
 import Button from '@/components/ui/Button';
 import ProtectedRoute from '@/components/ProtectedRoute';
-import Script from 'next/script';
 
 declare global {
   interface Window {
@@ -22,12 +21,38 @@ declare global {
   }
 }
 
+const indianStates = [
+  "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh",
+  "Goa", "Gujarat", "Haryana", "Himachal Pradesh", "Jharkhand",
+  "Karnataka", "Kerala", "Madhya Pradesh", "Maharashtra", "Manipur",
+  "Meghalaya", "Mizoram", "Nagaland", "Odisha", "Punjab",
+  "Rajasthan", "Sikkim", "Tamil Nadu", "Telangana", "Tripura",
+  "Uttar Pradesh", "Uttarakhand", "West Bengal", "Andaman and Nicobar Islands",
+  "Chandigarh", "Dadra and Nagar Haveli and Daman and Diu", "Delhi",
+  "Jammu and Kashmir", "Ladakh", "Lakshadweep", "Puducherry"
+];
+
+
 const CheckoutPage = () => {
-  const { items, totalPrice, shippingCost, grandTotal, clearCart } = useCart();
+  const { items, totalPrice, shippingCost, grandTotal, clearCart, isMinimumOrderMet, shippingState, setShippingState } = useCart();
   const { isAuthenticated, user } = useAuth();
   const router = useRouter();
   const statusUrlRef = useRef('');
   const orderIdRef = useRef<string | null>(null);
+
+  // Ensure minimum order amount is met
+  useEffect(() => {
+    if (!isMinimumOrderMet) {
+      toast.error('Minimum order amount of ₹100 required for checkout', {
+        style: {
+          backgroundColor: '#fef2f2',
+          color: '#b91c1c',
+          fontWeight: '500'
+        }
+      });
+      router.push('/');
+    }
+  }, [isMinimumOrderMet, router]);
   
   const [formData, setFormData] = useState({
     name: user?.name || '',
@@ -35,13 +60,13 @@ const CheckoutPage = () => {
     phone: user?.phone || '',
     address: '',
     city: '',
-    state: '',
+    state: shippingState,
     postalCode: '',
     country: 'India',
     paymentMethod: 'phonepe' // Only PhonePe payment method available
   });
   
-  const [step, setStep] = useState(1); // 1: Shipping, 2: Payment, 3: Review
+  const [currentStep, setCurrentStep] = useState(1); // 1: Shipping, 2: Payment, 3: Review
   const [isProcessing, setIsProcessing] = useState(false);
   const [isPhonePeScriptLoaded, setIsPhonePeScriptLoaded] = useState(false);
 
@@ -62,6 +87,9 @@ const CheckoutPage = () => {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
+    if (name === 'state') {
+      setShippingState(value);
+    }
     setFormData(prev => ({
       ...prev,
       [name]: value
@@ -70,13 +98,13 @@ const CheckoutPage = () => {
 
   const handleShippingSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setStep(2);
+    setCurrentStep(2);
     window.scrollTo(0, 0);
   };
 
   const handlePaymentSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setStep(3);
+    setCurrentStep(3);
     window.scrollTo(0, 0);
   };
 
@@ -116,16 +144,16 @@ const CheckoutPage = () => {
       if (data.data.success && data.data.redirectUrl) {
         statusUrlRef.current = data.data.checkStatusUrl;
         // Open PhonePe in iFrame
-        if (window.PhonePeCheckout) {
-          window.PhonePeCheckout.transact({
-            tokenUrl: data.data.redirectUrl,
-            callback: phonePeCallback,
-            type: "IFRAME"
-          });
-        } else {
-          throw new Error('PhonePe checkout not available');
-        }
-        // router.push(data.data.redirectUrl);
+        // if (window.PhonePeCheckout) {
+        //   window.PhonePeCheckout.transact({
+        //     tokenUrl: data.data.redirectUrl,
+        //     callback: phonePeCallback,
+        //     type: "IFRAME"
+        //   });
+        // } else {
+        //   throw new Error('PhonePe checkout not available');
+        // }
+        router.push(data.data.redirectUrl);
       } else {
         throw new Error(data.message || 'Payment initiation failed');
       }
@@ -245,41 +273,52 @@ const CheckoutPage = () => {
     }
   };
 
+
   return (
     <ProtectedRoute>
       <div className="bg-gray-50 min-h-screen py-8">
         <div className="container mx-auto px-4">
           <h1 className="text-2xl font-bold text-gray-800 mb-6">Checkout</h1>
-          
-          {/* Checkout Steps */}
-          <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
-            <div className="flex justify-between items-center">
-              <div className="flex items-center">
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center ${step >= 1 ? 'bg-red-900 text-white' : 'bg-gray-200 text-gray-600'}`}>
-                  1
+
+          <div className="bg-white rounded-lg shadow-sm p-4 md:p-6 mb-6 md:mb-8">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0 overflow-x-auto">  
+            {[1, 2, 3].map((step) => (
+            <React.Fragment key={step}>
+                <div className="flex items-center flex-shrink-0">
+                  <div 
+                    className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
+                      currentStep >= step ? 'bg-red-900 text-white' : 'bg-gray-200 text-gray-600'
+                    }`}
+                  >
+                    {step}
+                  </div>
+                  <div 
+                    className={`ml-2 text-sm md:text-base ${
+                      currentStep >= step ? 'text-gray-900 font-medium' : 'text-gray-500'
+                    }`}
+                  >
+                    {step === 1 && 'Shipping'}
+                    {step === 2 && 'Payment'}
+                    {step === 3 && 'Review'}
+                  </div>
                 </div>
-                <div className={`ml-2 ${step >= 1 ? 'text-gray-900 font-medium' : 'text-gray-500'}`}>
-                  Shipping
-                </div>
-              </div>
-              <div className={`flex-1 mx-4 h-1 ${step >= 2 ? 'bg-red-900' : 'bg-gray-200'}`}></div>
-              <div className="flex items-center">
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center ${step >= 2 ? 'bg-red-900 text-white' : 'bg-gray-200 text-gray-600'}`}>
-                  2
-                </div>
-                <div className={`ml-2 ${step >= 2 ? 'text-gray-900 font-medium' : 'text-gray-500'}`}>
-                  Payment
-                </div>
-              </div>
-              <div className={`flex-1 mx-4 h-1 ${step >= 3 ? 'bg-red-900' : 'bg-gray-200'}`}></div>
-              <div className="flex items-center">
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center ${step >= 3 ? 'bg-red-900 text-white' : 'bg-gray-200 text-gray-600'}`}>
-                  3
-                </div>
-                <div className={`ml-2 ${step >= 3 ? 'text-gray-900 font-medium' : 'text-gray-500'}`}>
-                  Review
-                </div>
-              </div>
+                {step < 4 && (
+                  <div 
+                    className={`hidden sm:block flex-1 mx-2 md:mx-4 h-1 ${
+                      currentStep > step ? 'bg-red-900' : 'bg-gray-200'
+                    }`}
+                  ></div>
+                )}
+              </React.Fragment>
+            ))}
+            </div>
+
+            {/* Mobile progress indicator (alternative to the connecting lines) */}
+            <div className="sm:hidden mt-4 w-full bg-gray-200 rounded-full h-2">
+              <div 
+                className="bg-red-900 h-2 rounded-full" 
+                style={{ width: `${(currentStep - 1) * 33.33}%` }}
+              ></div>
             </div>
           </div>
           
@@ -287,7 +326,7 @@ const CheckoutPage = () => {
             {/* Main Content */}
             <div className="lg:col-span-2">
               {/* Step 1: Shipping */}
-              {step === 1 && (
+              {currentStep === 1 && (
                 <div className="bg-white rounded-lg shadow-sm overflow-hidden">
                   <div className="p-6 border-b border-gray-200">
                     <h2 className="text-lg font-semibold">Shipping Information</h2>
@@ -370,14 +409,19 @@ const CheckoutPage = () => {
                           <label className="block text-sm font-medium text-gray-700 mb-2">
                             State
                           </label>
-                          <input 
-                            type="text" 
-                            name="state" 
+                          <select
+                            name="state"
                             className="input-field w-full border border-gray-400 rounded-md p-2 focus:ring-2 focus:ring-brown-600 focus:outline-none focus:border-transparent"
                             value={formData.state}
                             onChange={handleInputChange}
                             required
-                          />
+                          >
+                            {indianStates.map((stateName) => (
+                              <option key={stateName} value={stateName}>
+                                {stateName}
+                              </option>
+                            ))}
+                          </select>
                         </div>
                         
                         <div>
@@ -434,7 +478,7 @@ const CheckoutPage = () => {
               )}
               
               {/* Step 2: Payment - Only PhonePe shown */}
-              {step === 2 && (
+              {currentStep === 2 && (
                 <div className="bg-white rounded-lg shadow-sm overflow-hidden">
                   <div className="p-6 border-b border-gray-200">
                     <h2 className="text-lg font-semibold">Payment Method</h2>
@@ -476,7 +520,7 @@ const CheckoutPage = () => {
                           variant='outline' 
                           type="button" 
                           className="flex items-center text-red-900 hover:text-red-700"
-                          onClick={() => setStep(1)}
+                          onClick={() => setCurrentStep(1)}
                         >
                           <ArrowLeft size={16} className="mr-1" />
                           Back to Shipping
@@ -495,7 +539,7 @@ const CheckoutPage = () => {
               )}
               
               {/* Step 3: Review */}
-              {step === 3 && (
+              {currentStep === 3 && (
                 <div className="bg-white rounded-lg shadow-sm overflow-hidden">
                   <div className="p-6 border-b border-gray-200">
                     <h2 className="text-lg font-semibold">Review Your Order</h2>
@@ -577,7 +621,7 @@ const CheckoutPage = () => {
                         variant='outline'
                         type="button" 
                         className="flex items-center text-red-900 hover:text-red-700"
-                        onClick={() => setStep(2)}
+                        onClick={() => setCurrentStep(2)}
                       >
                         <ArrowLeft size={16} className="mr-1" />
                         Back to Payment
