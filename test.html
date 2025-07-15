@@ -1,0 +1,1261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verdant Bloom - eCommerce Homepage</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Inter (Body) & Montserrat (Headings) -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Montserrat:wght@600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        /* Color System Overhaul - CSS Variables */
+        :root {
+            --primary: #0e3a23; /* Darker green */
+            --primary-light: #a7d9b9; /* Light mint green */
+            --secondary: #8fab4a; /* Olive green */
+            --error: #d33f3f; /* Error red */
+
+            /* Typography System Update - Type Scale */
+            --text-base: 1rem;
+            --text-scale: 1.25;
+            --text-xs: calc(var(--text-base) / (var(--text-scale) * var(--text-scale))); /* 0.64rem */
+            --text-sm: calc(var(--text-base) / var(--text-scale)); /* 0.8rem */
+            --text-md: var(--text-base); /* 1rem */
+            --text-lg: calc(var(--text-base) * var(--text-scale)); /* 1.25rem */
+            --text-xl: calc(var(--text-base) * var(--text-scale) * var(--text-scale)); /* 1.5625rem */
+            --text-2xl: calc(var(--text-base) * var(--text-scale) * var(--text-scale) * var(--text-scale)); /* 1.953125rem */
+            --text-3xl: calc(var(--text-base) * var(--text-scale) * var(--text-scale) * var(--text-scale) * var(--text-scale)); /* 2.44140625rem */
+            --text-4xl: calc(var(--text-base) * var(--text-scale) * var(--text-scale) * var(--text-scale) * var(--text-scale) * var(--text-scale)); /* 3.0517578125rem */
+            --text-5xl: calc(var(--text-base) * var(--text-scale) * var(--text-scale) * var(--text-scale) * var(--text-scale) * var(--text-scale) * var(--text-scale)); /* 3.814697265625rem */
+            --text-6xl: calc(var(--text-5xl) * 1.2); /* Approximately 20% increase from 3rem (48px) to 3.6rem (57.6px) for headline */
+            --text-hero-headline: 3.6rem; /* Specific size for hero headline */
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fcf8; /* Light green-ish background */
+            color: #333;
+            font-weight: 400; /* Typography System Update */
+        }
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Montserrat', sans-serif;
+            color: var(--primary); /* Use color variable */
+        }
+        h1, h2 { font-weight: 800; } /* Typography System Update */
+        h3, h4 { font-weight: 700; } /* Typography System Update */
+
+        /* Custom scrollbar for better aesthetics */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #e0f2e0; /* Light green track */
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--secondary); /* Use color variable */
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #556b2f; /* Darker olive green */
+        }
+
+        /* Mega Menu specific styles */
+        .mega-menu-content {
+            display: none;
+            position: absolute;
+            left: 0;
+            width: 100%;
+            background-color: #ffffff;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+            z-index: 1000;
+            border-radius: 0 0 1rem 1rem;
+            padding: 1.5rem;
+            transform: translateY(-10px);
+            opacity: 0;
+            transition: all 0.3s ease-out;
+            pointer-events: none; /* Allows clicks through when hidden */
+        }
+        .mega-menu-item:hover .mega-menu-content {
+            display: block;
+            transform: translateY(0);
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        /* Navigation System Upgrade - Magnetic Hover Effect */
+        .magnetic-link {
+            display: inline-block;
+            transition: transform 0.1s ease-out; /* Smoother transition for magnetic effect */
+        }
+
+        /* Predictive Search styles */
+        .predictive-search-results {
+            display: none;
+            position: absolute;
+            width: 100%;
+            max-height: 300px;
+            overflow-y: auto;
+            background-color: #fff;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            z-index: 999;
+            margin-top: 0.5rem;
+        }
+        .predictive-search-results.active {
+            display: block;
+        }
+
+        /* Product spin simulation */
+        .product-spin-container {
+            position: relative;
+            width: 100%;
+            padding-bottom: 100%; /* 1:1 aspect ratio */
+            overflow: hidden;
+            border-radius: 1rem;
+        }
+        .product-spin-image {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: opacity 0.2s ease-in-out;
+            opacity: 0;
+        }
+        .product-spin-image.active {
+            opacity: 1;
+        }
+
+        /* Product Card Enhancements - Three-stage hover animation */
+        .product-card {
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .product-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1);
+        }
+        .product-card:hover .product-image {
+            transform: scale(1.02);
+        }
+
+        /* Product Card Enhancements - Price comparison styling */
+        .price .current {
+            color: var(--primary); /* Current price color */
+            font-weight: 700;
+        }
+        .price .original {
+            color: #888; /* Lighter grey for original price */
+            text-decoration: line-through;
+            margin-left: 0.5rem;
+            font-size: var(--text-sm); /* Smaller font for original price */
+        }
+
+        /* Real-time purchase pop-up */
+        .purchase-popup {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background-color: var(--primary); /* Use color variable */
+            color: #e0f2e0;
+            padding: 1rem 1.5rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            z-index: 1000;
+            display: none;
+            animation: slideInUp 0.5s ease-out forwards, fadeOut 0.5s 4.5s forwards;
+        }
+
+        @keyframes slideInUp {
+            from { transform: translateY(100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; display: none; }
+        }
+
+        /* Spin the Wheel Modal */
+        .spin-wheel-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease-out, visibility 0.3s ease-out;
+        }
+        .spin-wheel-modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        .spin-wheel-modal-content {
+            background-color: #fff;
+            padding: 2.5rem;
+            border-radius: 1.5rem;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+            text-align: center;
+            max-width: 500px;
+            width: 90%;
+            transform: scale(0.9);
+            transition: transform 0.3s ease-out;
+        }
+        .spin-wheel-modal-overlay.active .spin-wheel-modal-content {
+            transform: scale(1);
+        }
+        .wheel-container {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: conic-gradient(
+                var(--primary-light) 0% 16.6%,
+                #8dc89e 16.6% 33.3%,
+                var(--secondary) 33.3% 50%,
+                var(--primary-light) 50% 66.6%,
+                #8dc89e 66.6% 83.3%,
+                var(--secondary) 83.3% 100%
+            );
+            margin: 2rem auto;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+        .wheel-pointer {
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 15px solid transparent;
+            border-right: 15px solid transparent;
+            border-bottom: #e0f2e0;
+            z-index: 10;
+        }
+        .wheel-inner {
+            width: 100px;
+            height: 100px;
+            background-color: var(--primary); /* Use color variable */
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #fff;
+            font-weight: bold;
+            font-size: var(--text-lg); /* Use type scale */
+            cursor: pointer;
+            transition: transform 4s cubic-bezier(0.25, 0.1, 0.25, 1); /* Slower, smoother spin */
+        }
+        .wheel-inner.spinning {
+            /* This will be set dynamically by JS */
+        }
+        .discount-result {
+            margin-top: 1.5rem;
+            font-size: var(--text-2xl); /* Use type scale */
+            font-weight: bold;
+            color: var(--secondary); /* Use color variable */
+            display: none;
+        }
+
+        /* Trust Badge Pulsating Effect */
+        .pulse-animation {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.1); opacity: 0.8; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        /* Sticky countdown bar */
+        .countdown-bar {
+            position: sticky;
+            top: 0;
+            width: 100%;
+            background-color: var(--primary-light); /* Use color variable */
+            color: var(--primary); /* Use color variable */
+            padding: 0.75rem 1rem;
+            text-align: center;
+            font-weight: 600;
+            z-index: 100;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        /* Interactive States - Button Ripple Effect */
+        .ripple-button {
+            position: relative;
+            overflow: hidden;
+            transform: translate3d(0, 0, 0);
+        }
+        .ripple {
+            display: block;
+            position: absolute;
+            background: rgba(255, 255, 255, 0.5); /* White ripple */
+            border-radius: 50%;
+            transform: scale(0);
+            animation: ripple-animation 0.6s linear;
+            opacity: 1;
+        }
+        @keyframes ripple-animation {
+            to {
+                transform: scale(4);
+                opacity: 0;
+            }
+        }
+
+        /* Interactive States - Form Validation States */
+        .input-error {
+            border-color: var(--error);
+            animation: shake 0.5s ease;
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        /* Hero Section Redesign - Layered Background */
+        .hero-section {
+            background: linear-gradient(135deg, #e0f2e0 0%, #a7d9b9 100%);
+            position: relative;
+            overflow: hidden;
+        }
+        .hero-section::before {
+            content: "";
+            background: url('data:image/svg+xml;utf8,<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="2" fill="%230e3a23" /></svg>') repeat;
+            opacity: 0.05;
+            position: absolute;
+            inset: 0;
+            z-index: 0; /* Ensure it's behind content */
+        }
+
+        /* Hero Section Redesign - Animated SVG Arrow */
+        .arrow-down-animated {
+            animation: bounce-arrow 1.5s infinite;
+            color: var(--primary);
+        }
+        @keyframes bounce-arrow {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(10px); }
+        }
+    </style>
+</head>
+<body class="overflow-x-hidden">
+
+    <!-- Countdown Bar -->
+    <div id="countdown-bar" class="countdown-bar">
+        Flash Sale: Ends in <span id="countdown-timer">00h 00m 00s</span>! Shop Now!
+    </div>
+
+    <!-- Navigation Bar -->
+    <header class="bg-white shadow-sm py-4 px-6 md:px-12 relative z-50 rounded-b-xl">
+        <nav class="container mx-auto flex justify-between items-center">
+            <!-- Logo -->
+            <a href="#" class="text-3xl font-extrabold text-[--primary] tracking-tight">Verdant Bloom</a>
+
+            <!-- Primary Navigation -->
+            <ul class="hidden md:flex space-x-8">
+                <li class="relative mega-menu-item">
+                    <a href="#" class="text-gray-700 hover:text-[--secondary] font-medium transition-colors duration-200 magnetic-link">Categories</a>
+                    <div class="mega-menu-content">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div>
+                                <h3 class="font-bold text-lg mb-3 text-[--primary] flex items-center">
+                                    <!-- Navigation System Upgrade - SVG Icon -->
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-droplet mr-2"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.32 0z"/></svg>
+                                    Skincare
+                                </h3>
+                                <ul class="space-y-2">
+                                    <li><a href="#" class="text-gray-600 hover:text-[--secondary] transition-colors magnetic-link">Cleansers</a></li>
+                                    <li><a href="#" class="text-gray-600 hover:text-[--secondary] transition-colors magnetic-link">Serums</a></li>
+                                    <li><a href="#" class="text-gray-600 hover:text-[--secondary] transition-colors magnetic-link">Moisturizers</a></li>
+                                    <li><a href="#" class="text-gray-600 hover:text-[--secondary] transition-colors magnetic-link">Sunscreen</a></li>
+                                </ul>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-lg mb-3 text-[--primary] flex items-center">
+                                    <!-- Navigation System Upgrade - SVG Icon -->
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-scissors mr-2"><circle cx="6" cy="6" r="3"/><path d="M8.12 8.12 12 12"/><path d="M20 4 8.12 15.88"/><circle cx="6" cy="18" r="3"/><path d="M14.8 14.8 20 20"/></svg>
+                                    Haircare
+                                </h3>
+                                <ul class="space-y-2">
+                                    <li><a href="#" class="text-gray-600 hover:text-[--secondary] transition-colors magnetic-link">Shampoos</a></li>
+                                    <li><a href="#" class="text-gray-600 hover:text-[--secondary] transition-colors magnetic-link">Conditioners</a></li>
+                                    <li><a href="#" class="text-gray-600 hover:text-[--secondary] transition-colors magnetic-link">Treatments</a></li>
+                                </ul>
+                            </div>
+                            <div class="col-span-1 md:col-span-1">
+                                <h3 class="font-bold text-lg mb-3 text-[--primary]">Trending Products</h3>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div class="relative group">
+                                        <img src="https://placehold.co/100x100/e0f2e0/1a4d2e?text=Product+A" alt="Trending Product A" class="w-full h-auto rounded-md object-cover group-hover:scale-105 transition-transform">
+                                        <p class="text-sm text-gray-700 mt-1">Product A</p>
+                                    </div>
+                                    <div class="relative group">
+                                        <img src="https://placehold.co/100x100/e0f2e0/1a4d2e?text=Product+B" alt="Trending Product B" class="w-full h-auto rounded-md object-cover group-hover:scale-105 transition-transform">
+                                        <p class="text-sm text-gray-700 mt-1">Product B</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+                <li><a href="#" class="text-gray-700 hover:text-[--secondary] font-medium transition-colors duration-200 magnetic-link">New Arrivals</a></li>
+                <li><a href="#" class="text-gray-700 hover:text-[--secondary] font-medium transition-colors duration-200 magnetic-link">About Us</a></li>
+                <li><a href="#" class="text-gray-700 hover:text-[--secondary] font-medium transition-colors duration-200 magnetic-link">Contact</a></li>
+            </ul>
+
+            <!-- Search Bar & Icons -->
+            <div class="flex items-center space-x-4">
+                <div class="relative">
+                    <input type="text" id="search-input" placeholder="Search products..." class="py-2 px-4 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-[--primary-light] transition-all w-32 md:w-48">
+                    <div id="predictive-search-results" class="predictive-search-results">
+                        <!-- Results will be injected here by JS -->
+                    </div>
+                </div>
+                <button class="text-gray-700 hover:text-[--secondary] transition-colors magnetic-link">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-user"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                </button>
+                <button class="text-gray-700 hover:text-[--secondary] transition-colors magnetic-link">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shopping-cart"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
+                </button>
+                <button class="md:hidden text-gray-700 hover:text-[--secondary] transition-colors magnetic-link">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-menu"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg>
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <!-- Hero Section - Smart Product Finder Quiz -->
+        <section class="relative hero-section py-20 px-6 md:px-12 rounded-b-3xl">
+            <div class="container mx-auto flex flex-col lg:flex-row items-center justify-between relative z-10">
+                <div class="lg:w-1/2 text-center lg:text-left mb-10 lg:mb-0">
+                    <h1 class="font-extrabold leading-tight mb-6 text-[--primary]" style="font-size: var(--text-hero-headline);">
+                        Discover Your <span class="text-[--secondary]">Perfect</span> Routine
+                    </h1>
+                    <p class="text-lg md:text-xl text-gray-700 mb-8 max-w-lg mx-auto lg:mx-0">
+                        Take our quick quiz to find personalized product recommendations tailored just for you.
+                    </p>
+                    <button id="start-quiz-btn" class="bg-[--primary] text-white py-3 px-8 rounded-full text-lg font-semibold hover:bg-[#2c6a43] transition-all duration-300 shadow-lg transform hover:scale-105 ripple-button">
+                        Start the Quiz
+                    </button>
+                    <!-- Hero Section Redesign - Animated SVG Arrow -->
+                    <div class="mt-4 text-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-down arrow-down-animated mx-auto">
+                            <path d="M12 5v14"/><path d="m19 12-7 7-7-7"/>
+                        </svg>
+                    </div>
+                </div>
+                <div class="lg:w-1/2 bg-white p-8 rounded-2xl shadow-xl max-w-md w-full">
+                    <h2 class="text-2xl font-bold mb-6 text-[--primary] text-center">Smart Product Finder</h2>
+                    <div id="quiz-container">
+                        <!-- Quiz steps will be injected here -->
+                        <div id="quiz-step-1" class="quiz-step active">
+                            <p class="text-gray-700 mb-4">What's your primary skin concern?</p>
+                            <div class="space-y-3">
+                                <button class="quiz-option-btn bg-gray-100 text-gray-800 py-3 px-4 rounded-lg w-full text-left hover:bg-[#e0f2e0] transition-colors ripple-button" data-answer="dryness">Dryness & Dehydration</button>
+                                <button class="quiz-option-btn bg-gray-100 text-gray-800 py-3 px-4 rounded-lg w-full text-left hover:bg-[#e0f2e0] transition-colors ripple-button" data-answer="acne">Acne & Breakouts</button>
+                                <button class="quiz-option-btn bg-gray-100 text-gray-800 py-3 px-4 rounded-lg w-full text-left hover:bg-[#e0f2e0] transition-colors ripple-button" data-answer="aging">Aging & Fine Lines</button>
+                                <button class="quiz-option-btn bg-gray-100 text-gray-800 py-3 px-4 rounded-lg w-full text-left hover:bg-[#e0f2e0] transition-colors ripple-button" data-answer="sensitivity">Sensitivity & Redness</button>
+                            </div>
+                        </div>
+                        <div id="quiz-step-2" class="quiz-step hidden">
+                            <p class="text-gray-700 mb-4">How would you describe your skin type?</p>
+                            <div class="space-y-3">
+                                <button class="quiz-option-btn bg-gray-100 text-gray-800 py-3 px-4 rounded-lg w-full text-left hover:bg-[#e0f2e0] transition-colors ripple-button" data-answer="oily">Oily</button>
+                                <button class="quiz-option-btn bg-gray-100 text-gray-800 py-3 px-4 rounded-lg w-full text-left hover:bg-[#e0f2e0] transition-colors ripple-button" data-answer="combination">Combination</button>
+                                <button class="quiz-option-btn bg-gray-100 text-gray-800 py-3 px-4 rounded-lg w-full text-left hover:bg-[#e0f2e0] transition-colors ripple-button" data-answer="normal">Normal</button>
+                                <button class="quiz-option-btn bg-gray-100 text-gray-800 py-3 px-4 rounded-lg w-full text-left hover:bg-[#e0f2e0] transition-colors ripple-button" data-answer="dry">Dry</button>
+                            </div>
+                        </div>
+                        <div id="quiz-result" class="quiz-step hidden text-center">
+                            <h3 class="text-xl font-bold mb-4 text-[--primary]">Your Personalized Recommendation:</h3>
+                            <div id="recommended-product" class="bg-[#f8fcf8] p-4 rounded-xl shadow-inner">
+                                <img src="https://placehold.co/150x150/a7d9b9/1a4d2e?text=Product" alt="Recommended Product" class="mx-auto mb-4 rounded-lg">
+                                <h4 class="text-lg font-semibold text-[--secondary]" id="product-name">Product Name Here</h4>
+                                <p class="text-gray-600 text-sm mb-4" id="product-description">A perfect solution for your needs.</p>
+                                <button class="bg-[--secondary] text-white py-2 px-6 rounded-full hover:bg-[#556b2f] transition-colors ripple-button">View Product</button>
+                            </div>
+                            <button id="restart-quiz-btn" class="mt-6 text-sm text-gray-600 hover:text-[--primary] transition-colors ripple-button">Start Over</button>
+                        </div>
+                    </div>
+                    <!-- Interactive States - Form Validation Example -->
+                    <div class="mt-8">
+                        <label for="quiz-email" class="block text-gray-700 text-sm font-bold mb-2">Enter your email for results:</label>
+                        <input type="email" id="quiz-email" placeholder="email@example.com" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[--primary-light]">
+                        <p id="email-error" class="text-[--error] text-xs mt-1 hidden">Please enter a valid email address.</p>
+                        <button id="submit-quiz-email" class="bg-[--primary] text-white py-2 px-6 rounded-full mt-4 w-full ripple-button">Get Results</button>
+                    </div>
+                </div>
+            </div>
+            <!-- Organic shapes background -->
+            <div class="absolute top-0 left-0 w-full h-full">
+                <svg class="absolute top-10 left-0 w-1/4 h-auto opacity-20" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                    <path fill="#8dc89e" d="M49.2,-64.1C63.6,-53.4,75.4,-36.8,77.5,-19.1C79.6,-1.4,72.1,17.4,60.1,31.7C48.1,46.1,31.6,56,12.5,61.9C-6.6,67.8,-27.2,69.7,-42.6,62.8C-58,55.9,-68.1,40.2,-72.6,22.7C-77.1,5.2,-76,-14.1,-67.2,-29.4C-58.4,-44.7,-41.9,-56,-24.5,-63.9C-7.1,-71.8,11.3,-76.4,29.2,-72.2Z" transform="translate(0 0) scale(1.5)"></path>
+                </svg>
+                <svg class="absolute bottom-0 right-0 w-1/3 h-auto opacity-20" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                    <path fill="#a7d9b9" d="M44.5,-61.8C59.7,-51.7,74.7,-38.7,78.2,-23.4C81.7,-8.1,73.7,9.4,63.1,23.3C52.4,37.2,39.1,47.5,23.3,55.1C7.6,62.6,-10.8,67.4,-27.1,64.2C-43.4,61,-57.6,49.8,-63.2,35.2C-68.9,20.6,-66,2.7,-59.8,-13.6C-53.6,-29.9,-44,-44.7,-30.9,-55.2C-17.8,-65.7,-1.4,-72,15.6,-70.7C32.6,-69.4,44.5,-61.8Z" transform="translate(200 200) scale(1.5)"></path>
+                </svg>
+            </div>
+        </section>
+
+        <!-- Product Showcase - Asymmetrical, Interactive -->
+        <section class="py-16 px-6 md:px-12 bg-white">
+            <div class="container mx-auto">
+                <h2 class="text-4xl font-extrabold text-[--primary] mb-12">Our Bestsellers</h2>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-start">
+                    <!-- Product 1 (Large, interactive) -->
+                    <div class="md:col-span-2 bg-[#f8fcf8] p-6 rounded-2xl shadow-lg relative overflow-hidden group product-card">
+                        <div class="flex flex-col md:flex-row items-center gap-6">
+                            <div class="md:w-1/2 product-spin-container">
+                                <!-- Image sequence for simulated 3D spin -->
+                                <img src="https://placehold.co/300x300/a7d9b9/1a4d2e?text=Product+A-1" data-spin-src="https://placehold.co/300x300/a7d9b9/1a4d2e?text=Product+A-2,https://placehold.co/300x300/a7d9b9/1a4d2e?text=Product+A-3,https://placehold.co/300x300/a7d9b9/1a4d2e?text=Product+A-4" alt="Hydrating Facial Serum" class="product-spin-image active rounded-xl product-image">
+                            </div>
+                            <div class="md:w-1/2 text-center md:text-left">
+                                <h3 class="text-3xl font-bold text-[--primary] mb-3">Hydrating Facial Serum</h3>
+                                <p class="text-gray-700 mb-4">Infused with hyaluronic acid and natural botanicals, this serum deeply hydrates and plumps your skin for a radiant glow.</p>
+                                <!-- Product Card Enhancements - Price comparison styling -->
+                                <div class="price text-2xl font-bold block mb-4">
+                                    <span class="current">$49.99</span>
+                                    <span class="original">$59.99</span>
+                                </div>
+                                <button class="bg-[--primary] text-white py-3 px-8 rounded-full font-semibold hover:bg-[#2c6a43] transition-all duration-300 shadow-md quick-add-btn ripple-button">Add to Cart</button>
+                            </div>
+                        </div>
+                        <div class="absolute top-4 right-4 bg-[--secondary] text-white text-sm px-3 py-1 rounded-full">New Arrival</div>
+                    </div>
+
+                    <!-- Product 2 (Smaller, overlapping) -->
+                    <div class="bg-[#f8fcf8] p-6 rounded-2xl shadow-lg relative -mt-8 md:mt-0 lg:-ml-16 z-10 group product-card">
+                        <img src="https://placehold.co/250x250/e0f2e0/1a4d2e?text=Product+B" alt="Organic Cleansing Balm" class="w-full h-auto object-cover mb-4 rounded-xl product-image">
+                        <h3 class="text-xl font-bold text-[--primary] mb-2">Organic Cleansing Balm</h3>
+                        <p class="text-gray-700 text-sm mb-3">Gently removes impurities and makeup, leaving skin soft and nourished.</p>
+                        <!-- Product Card Enhancements - Price comparison styling -->
+                        <div class="price text-xl font-bold block mb-3">
+                            <span class="current">$29.50</span>
+                            <span class="original">$34.99</span>
+                        </div>
+                        <button class="bg-[--secondary] text-white py-2 px-6 rounded-full text-sm hover:bg-[#556b2f] transition-colors quick-add-btn ripple-button">View Details</button>
+                    </div>
+
+                    <!-- Product 3 (Smaller, overlapping) -->
+                    <div class="bg-[#f8fcf8] p-6 rounded-2xl shadow-lg relative -mt-16 md:-mt-8 lg:-mt-32 z-20 group product-card">
+                        <img src="https://placehold.co/250x250/a7d9b9/1a4d2e?text=Product+C" alt="Daily SPF 30 Moisturizer" class="w-full h-auto object-cover mb-4 rounded-xl product-image">
+                        <h3 class="text-xl font-bold text-[--primary] mb-2">Daily SPF 30 Moisturizer</h3>
+                        <p class="text-gray-700 text-sm mb-3">Lightweight, non-greasy formula protects and hydrates all day.</p>
+                        <!-- Product Card Enhancements - Price comparison styling -->
+                        <div class="price text-xl font-bold block mb-3">
+                            <span class="current">$35.00</span>
+                            <span class="original">$39.99</span>
+                        </div>
+                        <button class="bg-[--secondary] text-white py-2 px-6 rounded-full text-sm hover:bg-[#556b2f] transition-colors quick-add-btn ripple-button">View Details</button>
+                    </div>
+
+                    <!-- Shop the Look Gallery -->
+                    <div class="md:col-span-full lg:col-span-2 bg-gradient-to-tr from-[--primary-light] to-[#e0f2e0] p-8 rounded-2xl shadow-xl mt-12 relative overflow-hidden">
+                        <h3 class="text-3xl font-bold text-[--primary] mb-6 text-center">Shop the Look: Radiant Glow</h3>
+                        <div class="relative w-full h-96 rounded-xl overflow-hidden shadow-md">
+                            <img src="https://placehold.co/800x600/6b8e23/e0f2e0?text=Inspirational+Look" alt="Inspirational Look" class="w-full h-full object-cover">
+                            <!-- Hotspots (example) -->
+                            <div class="absolute top-1/4 left-1/4 w-8 h-8 bg-white rounded-full flex items-center justify-center cursor-pointer border-2 border-[--primary] group">
+                                <span class="w-3 h-3 bg-[--primary] rounded-full animate-pulse"></span>
+                                <div class="absolute bottom-full mb-2 p-2 bg-[--primary] text-white text-xs rounded-md opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Serum</div>
+                            </div>
+                            <div class="absolute bottom-1/3 right-1/4 w-8 h-8 bg-white rounded-full flex items-center justify-center cursor-pointer border-2 border-[--primary] group">
+                                <span class="w-3 h-3 bg-[--primary] rounded-full animate-pulse"></span>
+                                <div class="absolute bottom-full mb-2 p-2 bg-[--primary] text-white text-xs rounded-md opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Moisturizer</div>
+                            </div>
+                        </div>
+                        <p class="text-center text-gray-700 mt-6">Click on the hotspots to discover products used in this look.</p>
+                    </div>
+
+                    <!-- Swipe-to-browse Carousel (Mobile-focused) -->
+                    <div class="md:col-span-full lg:col-span-1 bg-[#f8fcf8] p-6 rounded-2xl shadow-lg mt-8 lg:mt-0">
+                        <h3 class="text-2xl font-bold text-[--primary] mb-6 text-center">Customer Favorites</h3>
+                        <div class="relative">
+                            <div id="carousel-items" class="flex overflow-x-hidden snap-x snap-mandatory scroll-smooth rounded-xl">
+                                <!-- Carousel Item 1 -->
+                                <div class="flex-shrink-0 w-full snap-center p-2">
+                                    <img src="https://placehold.co/300x200/e0f2e0/1a4d2e?text=Fav+1" alt="Favorite Product 1" class="w-full h-48 object-cover rounded-xl mb-3">
+                                    <h4 class="font-semibold text-[--primary]">Vitamin C Brightening Mask</h4>
+                                    <p class="text-gray-600 text-sm">$22.00</p>
+                                </div>
+                                <!-- Carousel Item 2 -->
+                                <div class="flex-shrink-0 w-full snap-center p-2">
+                                    <img src="https://placehold.co/300x200/a7d9b9/1a4d2e?text=Fav+2" alt="Favorite Product 2" class="w-full h-48 object-cover rounded-xl mb-3">
+                                    <h4 class="font-semibold text-[--primary]">Overnight Repair Cream</h4>
+                                    <p class="text-gray-600 text-sm">$38.00</p>
+                                </div>
+                                <!-- Carousel Item 3 -->
+                                <div class="flex-shrink-0 w-full snap-center p-2">
+                                    <img src="https://placehold.co/300x200/6b8e23/e0f2e0?text=Fav+3" alt="Favorite Product 3" class="w-full h-48 object-cover rounded-xl mb-3">
+                                    <h4 class="font-semibold text-[--primary]">Gentle Foaming Cleanser</h4>
+                                    <p class="text-gray-600 text-sm">$18.00</p>
+                                </div>
+                            </div>
+                            <div class="absolute inset-y-0 left-0 flex items-center">
+                                <button id="carousel-prev" class="bg-white p-2 rounded-full shadow-md ml-2 hover:bg-gray-100 focus:outline-none ripple-button">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-left"><path d="m15 18-6-6 6-6"/></svg>
+                                </button>
+                            </div>
+                            <div class="absolute inset-y-0 right-0 flex items-center">
+                                <button id="carousel-next" class="bg-white p-2 rounded-full shadow-md mr-2 hover:bg-gray-100 focus:outline-none ripple-button">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-right"><path d="m9 18 6-6-6-6"/></svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Social Proof & Trust Signals -->
+        <section class="py-16 px-6 md:px-12 bg-[#e0f2e0] rounded-t-3xl">
+            <div class="container mx-auto text-center">
+                <h2 class="text-4xl font-extrabold text-[--primary] mb-12">What Our Customers Say</h2>
+
+                <!-- Dynamic Testimonials -->
+                <div class="relative max-w-3xl mx-auto bg-white p-8 rounded-2xl shadow-xl mb-12 overflow-hidden">
+                    <div id="testimonial-carousel" class="flex transition-transform duration-500 ease-in-out">
+                        <!-- Testimonial 1 -->
+                        <div class="w-full flex-shrink-0 text-center px-4">
+                            <p class="text-xl italic text-gray-700 mb-6">"Verdant Bloom transformed my skin! Their products are truly amazing and gentle."</p>
+                            <p class="font-semibold text-[--secondary]">- Sarah J., New York</p>
+                        </div>
+                        <!-- Testimonial 2 -->
+                        <div class="w-full flex-shrink-0 text-center px-4">
+                            <p class="text-xl italic text-gray-700 mb-6">"Finally, a skincare brand that delivers on its promises. My complexion has never looked better."</p>
+                            <p class="font-semibold text-[--secondary]">- David L., London</p>
+                        </div>
+                        <!-- Testimonial 3 -->
+                        <div class="w-full flex-shrink-0 text-center px-4">
+                            <p class="text-xl italic text-gray-700 mb-6">"I love the natural ingredients and the sustainable packaging. Highly recommend!"</p>
+                            <p class="font-semibold text-[--secondary]">- Emily R., Sydney</p>
+                        </div>
+                    </div>
+                    <div class="flex justify-center mt-6 space-x-2" id="testimonial-dots">
+                        <span class="w-3 h-3 bg-gray-300 rounded-full cursor-pointer dot active" data-index="0"></span>
+                        <span class="w-3 h-3 bg-gray-300 rounded-full cursor-pointer dot" data-index="1"></span>
+                        <span class="w-3 h-3 bg-gray-300 rounded-full cursor-pointer dot" data-index="2"></span>
+                    </div>
+                </div>
+
+                <!-- Real-time Purchase Pop-up (hidden by default) -->
+                <div id="purchase-popup" class="purchase-popup">
+                    <p class="flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shopping-bag mr-2"><path d="M6 2L3 7v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V7l-3-5Z"/><path d="M3 7h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+                        <span id="popup-text">Someone just bought Product X!</span>
+                    </p>
+                </div>
+
+                <!-- Trust Badges -->
+                <div class="flex flex-wrap justify-center gap-8 mt-12">
+                    <div class="flex flex-col items-center text-[--primary]">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shield-check pulse-animation mb-2"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67 0C6.5 20.5 3 18 3 13V6a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4v7Z"/><path d="m9 12 2 2 4-4"/></svg>
+                        <span class="font-semibold text-sm">SSL Secured</span>
+                    </div>
+                    <div class="flex flex-col items-center text-[--primary]">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-truck pulse-animation mb-2"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M10 18H7l1.72-6.88A2 2 0 0 1 10 10h4a2 2 0 0 1 2 2v3h3a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1h-1"/><circle cx="7" cy="18" r="2"/><circle cx="17" cy="18" r="2"/></svg>
+                        <span class="font-semibold text-sm">Fast Shipping</span>
+                    </div>
+                    <div class="flex flex-col items-center text-[--primary]">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-award pulse-animation mb-2"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 22 12 18 17 22 15.79 13.89"/></svg>
+                        <span class="font-semibold text-sm">Quality Guaranteed</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Promotional Modules - Spin the Wheel & Limited Time Bar -->
+        <section class="py-16 px-6 md:px-12 bg-white">
+            <div class="container mx-auto text-center">
+                <h2 class="text-4xl font-extrabold text-[--primary] mb-12">Exclusive Offers!</h2>
+                <p class="text-lg text-gray-700 mb-8 max-w-2xl mx-auto">Don't miss out on our special promotions designed just for you.</p>
+
+                <!-- Gamified Discounts: Spin the Wheel Modal -->
+                <div id="spin-wheel-modal-overlay" class="spin-wheel-modal-overlay">
+                    <div class="spin-wheel-modal-content">
+                        <h3 class="text-3xl font-bold text-[--primary] mb-4">Spin the Wheel for a Discount!</h3>
+                        <p class="text-gray-700 mb-6">Enter your email to unlock an exclusive discount code.</p>
+                        <input type="email" id="spin-email-input" placeholder="Your email address" class="w-full p-3 border border-gray-300 rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-[--primary-light]">
+                        <p id="spin-email-error" class="text-[--error] text-xs mt-1 hidden">Please enter a valid email address.</p>
+                        <div class="wheel-container">
+                            <div class="wheel-pointer"></div>
+                            <div id="spin-wheel-inner" class="wheel-inner">
+                                SPIN
+                            </div>
+                        </div>
+                        <p id="discount-result" class="discount-result">You won <span id="discount-value"></span>!</p>
+                        <button id="close-spin-modal" class="mt-6 bg-gray-200 text-gray-700 py-2 px-6 rounded-full hover:bg-gray-300 transition-colors ripple-button">No Thanks</button>
+                    </div>
+                </div>
+
+                <!-- Call to action for the modal (optional, for testing) -->
+                <button id="open-spin-modal-btn" class="bg-[--secondary] text-white py-3 px-8 rounded-full font-semibold hover:bg-[#556b2f] transition-all duration-300 shadow-lg transform hover:scale-105 ripple-button">
+                    Get Your Discount!
+                </button>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-[--primary] text-white py-16 px-6 md:px-12 rounded-t-3xl">
+        <div class="container mx-auto grid grid-cols-1 md:grid-cols-4 gap-12">
+            <!-- Company Info -->
+            <div>
+                <h3 class="text-2xl font-extrabold mb-6 text-[#e0f2e0]">Verdant Bloom</h3>
+                <p class="text-gray-300 text-sm leading-relaxed">
+                    Your destination for organic and sustainable skincare products. We believe in nourishing your skin naturally.
+                </p>
+                <div class="flex space-x-4 mt-6">
+                    <a href="#" class="text-gray-300 hover:text-[--primary-light] transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-facebook"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg></a>
+                    <a href="#" class="text-gray-300 hover:text-[--primary-light] transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-instagram"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg></a>
+                    <a href="#" class="text-gray-300 hover:text-[--primary-light] transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-twitter"><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.7 5 4.9 9 5.1 0-.4.1-.8.1-1.2C12.1 7.5 14.4 5 17 4c.9 0 1.7.2 2.5.6 1-.9 1.8-2 2.5-3.2z"/></svg></a>
+                </div>
+            </div>
+
+            <!-- Quick Links -->
+            <div>
+                <h3 class="text-xl font-bold mb-6 text-[#e0f2e0]">Quick Links</h3>
+                <ul class="space-y-3 text-gray-300 text-sm">
+                    <li><a href="#" class="hover:text-[--primary-light] transition-colors magnetic-link">Shop All</a></li>
+                    <li><a href="#" class="hover:text-[--primary-light] transition-colors magnetic-link">FAQs</a></li>
+                    <li><a href="#" class="hover:text-[--primary-light] transition-colors magnetic-link">Shipping & Returns</a></li>
+                    <li><a href="#" class="hover:text-[--primary-light] transition-colors magnetic-link">Privacy Policy</a></li>
+                </ul>
+            </div>
+
+            <!-- Mini-Blog Preview -->
+            <div>
+                <h3 class="text-xl font-bold mb-6 text-[#e0f2e0]">Latest from Our Blog</h3>
+                <div class="space-y-6">
+                    <div class="flex items-start space-x-4">
+                        <img src="https://placehold.co/80x60/6b8e23/e0f2e0?text=Blog" alt="Blog Post 1" class="w-20 h-15 object-cover rounded-md">
+                        <div>
+                            <a href="#" class="text-gray-100 hover:text-[--primary-light] transition-colors text-base font-medium magnetic-link">The Power of Natural Ingredients</a>
+                            <p class="text-gray-400 text-xs mt-1">Discover how nature's finest can transform your skincare routine.</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start space-x-4">
+                        <img src="https://placehold.co/80x60/6b8e23/e0f2e0?text=Blog" alt="Blog Post 2" class="w-20 h-15 object-cover rounded-md">
+                        <div>
+                            <a href="#" class="text-gray-100 hover:text-[--primary-light] transition-colors text-base font-medium magnetic-link">Your Guide to Sustainable Beauty</a>
+                            <p class="text-gray-400 text-xs mt-1">Learn about eco-friendly practices in the beauty industry.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- "Follow Us" Social Feed (Placeholder) -->
+            <div>
+                <h3 class="text-xl font-bold mb-6 text-[#e0f2e0]">Follow Us @VerdantBloom</h3>
+                <div class="grid grid-cols-3 gap-2">
+                    <img src="https://placehold.co/100x100/a7d9b9/1a4d2e?text=Insta1" alt="Instagram Post 1" class="w-full h-auto object-cover rounded-md">
+                    <img src="https://placehold.co/100x100/e0f2e0/1a4d2e?text=Insta2" alt="Instagram Post 2" class="w-full h-auto object-cover rounded-md">
+                    <img src="https://placehold.co/100x100/6b8e23/e0f2e0?text=Insta3" alt="Instagram Post 3" class="w-full h-auto object-cover rounded-md">
+                    <img src="https://placehold.co/100x100/a7d9b9/1a4d2e?text=Insta4" alt="Instagram Post 4" class="w-full h-auto object-cover rounded-md">
+                    <img src="https://placehold.co/100x100/e0f2e0/1a4d2e?text=Insta5" alt="Instagram Post 5" class="w-full h-auto object-cover rounded-md">
+                    <img src="https://placehold.co/100x100/6b8e23/e0f2e0?text=Insta6" alt="Instagram Post 6" class="w-full h-auto object-cover rounded-md">
+                </div>
+            </div>
+        </div>
+        <div class="border-t border-gray-700 mt-12 pt-8 text-center text-gray-400 text-sm">
+            &copy; 2025 Verdant Bloom. All rights reserved. Licensed Template.
+        </div>
+    </footer>
+
+    <script>
+        // --- Navigation Bar - Predictive Search ---
+        const searchInput = document.getElementById('search-input');
+        const searchResults = document.getElementById('predictive-search-results');
+        const dummyProducts = [
+            { name: "Hydrating Facial Serum", image: "https://placehold.co/50x50/a7d9b9/1a4d2e?text=Serum" },
+            { name: "Organic Cleansing Balm", image: "https://placehold.co/50x50/e0f2e0/1a4d2e?text=Balm" },
+            { name: "Daily SPF 30 Moisturizer", image: "https://placehold.co/50x50/6b8e23/e0f2e0?text=SPF" },
+            { name: "Vitamin C Brightening Mask", image: "https://placehold.co/50x50/a7d9b9/1a4d2e?text=Mask" },
+            { name: "Overnight Repair Cream", image: "https://placehold.co/50x50/e0f2e0/1a4d2e?text=Cream" }
+        ];
+
+        searchInput.addEventListener('input', () => {
+            const query = searchInput.value.toLowerCase();
+            searchResults.innerHTML = ''; // Clear previous results
+
+            if (query.length > 1) { // Show results only if query is long enough
+                const filteredProducts = dummyProducts.filter(product =>
+                    product.name.toLowerCase().includes(query)
+                );
+
+                if (filteredProducts.length > 0) {
+                    filteredProducts.forEach(product => {
+                        const div = document.createElement('div');
+                        div.className = 'flex items-center p-3 hover:bg-gray-100 cursor-pointer rounded-md';
+                        div.innerHTML = `
+                            <img src="${product.image}" alt="${product.name}" class="w-10 h-10 mr-3 rounded-md">
+                            <span class="text-gray-800">${product.name}</span>
+                        `;
+                        searchResults.appendChild(div);
+                    });
+                    searchResults.classList.add('active');
+                } else {
+                    searchResults.classList.remove('active');
+                }
+            } else {
+                searchResults.classList.remove('active');
+            }
+        });
+
+        // Hide search results when clicking outside
+        document.addEventListener('click', (event) => {
+            if (!searchInput.contains(event.target) && !searchResults.contains(event.target)) {
+                searchResults.classList.remove('active');
+            }
+        });
+
+        // --- Hero Section - Smart Product Finder Quiz ---
+        const startQuizBtn = document.getElementById('start-quiz-btn');
+        const quizContainer = document.getElementById('quiz-container');
+        const quizSteps = document.querySelectorAll('.quiz-step');
+        const quizOptionBtns = document.querySelectorAll('.quiz-option-btn');
+        const restartQuizBtn = document.getElementById('restart-quiz-btn');
+        const quizEmailInput = document.getElementById('quiz-email');
+        const emailError = document.getElementById('email-error');
+        const submitQuizEmailBtn = document.getElementById('submit-quiz-email');
+
+
+        let currentStep = 0;
+        const userAnswers = {};
+
+        // Hide all quiz steps initially except the first one
+        quizSteps.forEach((step, index) => {
+            if (index !== 0) step.classList.add('hidden');
+        });
+
+        startQuizBtn.addEventListener('click', () => {
+            startQuizBtn.classList.add('hidden');
+            quizSteps[0].classList.remove('hidden');
+            quizSteps[0].classList.add('active');
+        });
+
+        quizOptionBtns.forEach(button => {
+            button.addEventListener('click', (event) => {
+                const answer = event.target.dataset.answer;
+                userAnswers[`step-${currentStep + 1}`] = answer;
+                
+                quizSteps[currentStep].classList.add('hidden');
+                quizSteps[currentStep].classList.remove('active');
+                currentStep++;
+
+                if (currentStep < quizSteps.length - 1) { // -1 because the last step is the result
+                    quizSteps[currentStep].classList.remove('hidden');
+                    quizSteps[currentStep].classList.add('active');
+                } else {
+                    displayQuizResult();
+                }
+            });
+        });
+
+        restartQuizBtn.addEventListener('click', () => {
+            currentStep = 0;
+            for (const key in userAnswers) {
+                delete userAnswers[key];
+            }
+            quizSteps.forEach((step, index) => {
+                step.classList.add('hidden');
+                step.classList.remove('active');
+            });
+            quizSteps[0].classList.remove('hidden');
+            quizSteps[0].classList.add('active');
+            document.getElementById('quiz-result').classList.add('hidden');
+            quizEmailInput.classList.remove('input-error'); // Reset error state
+            emailError.classList.add('hidden');
+        });
+
+        function displayQuizResult() {
+            const concern = userAnswers['step-1'];
+            const skinType = userAnswers['step-2'];
+            const productNameElem = document.getElementById('product-name');
+            const productDescElem = document.getElementById('product-description');
+            const productImgElem = document.querySelector('#recommended-product img');
+
+            let recommendedProduct = {
+                name: "Universal Hydration Cream",
+                description: "A balanced cream suitable for all skin types, providing essential moisture.",
+                image: "https://placehold.co/150x150/a7d9b9/1a4d2e?text=Universal"
+            };
+
+            if (concern === 'dryness' && skinType === 'dry') {
+                recommendedProduct = {
+                    name: "Intense Moisture Lock Serum",
+                    description: "Deeply nourishing serum for severe dryness and dehydration.",
+                    image: "https://placehold.co/150x150/6b8e23/e0f2e0?text=Dryness"
+                };
+            } else if (concern === 'acne' && (skinType === 'oily' || skinType === 'combination')) {
+                recommendedProduct = {
+                    name: "Purifying Tea Tree Cleanser",
+                    description: "Targets breakouts and controls oil without over-drying.",
+                    image: "https://placehold.co/150x150/e0f2e0/1a4d2e?text=Acne"
+                };
+            } else if (concern === 'aging') {
+                recommendedProduct = {
+                    name: "Anti-Aging Retinol Night Cream",
+                    description: "Reduces fine lines and improves skin elasticity overnight.",
+                    image: "https://placehold.co/150x150/a7d9b9/1a4d2e?text=Aging"
+                };
+            } else if (concern === 'sensitivity') {
+                recommendedProduct = {
+                    name: "Calming Chamomile Toner",
+                    description: "Soothes irritated skin and reduces redness.",
+                    image: "https://placehold.co/150x150/e0f2e0/1a4d2e?text=Sensitive"
+                };
+            }
+
+            productNameElem.textContent = recommendedProduct.name;
+            productDescElem.textContent = recommendedProduct.description;
+            productImgElem.src = recommendedProduct.image;
+            productImgElem.alt = recommendedProduct.name;
+
+            document.getElementById('quiz-result').classList.remove('hidden');
+            document.getElementById('quiz-result').classList.add('active');
+        }
+
+        // Interactive States - Form Validation for Quiz Email
+        submitQuizEmailBtn.addEventListener('click', () => {
+            const email = quizEmailInput.value;
+            if (!email || !email.includes('@') || !email.includes('.')) {
+                quizEmailInput.classList.add('input-error');
+                emailError.classList.remove('hidden');
+            } else {
+                quizEmailInput.classList.remove('input-error');
+                emailError.classList.add('hidden');
+                // Simulate submission
+                console.log('Quiz email submitted:', email);
+                alert('Thank you for your submission! Your personalized recommendations have been sent to your email.');
+            }
+        });
+
+        // --- Product Showcase - Product Spin Simulation ---
+        document.querySelectorAll('.product-spin-container').forEach(container => {
+            const mainImage = container.querySelector('.product-spin-image');
+            const spinSrc = mainImage.dataset.spinSrc;
+            if (!spinSrc) return;
+
+            const spinImages = spinSrc.split(',');
+            let currentSpinFrame = 0;
+            let spinInterval;
+
+            // Preload images
+            spinImages.forEach(src => {
+                const img = new Image();
+                img.src = src;
+            });
+
+            container.addEventListener('mouseenter', () => {
+                spinInterval = setInterval(() => {
+                    currentSpinFrame = (currentSpinFrame + 1) % spinImages.length;
+                    mainImage.src = spinImages[currentSpinFrame];
+                }, 100); // Adjust speed of spin
+            });
+
+            container.addEventListener('mouseleave', () => {
+                clearInterval(spinInterval);
+                mainImage.src = mainImage.dataset.spinSrc.split(',')[0]; // Reset to first frame
+                currentSpinFrame = 0;
+            });
+        });
+
+        // --- Product Showcase - Swipe-to-browse Carousel ---
+        const carouselItems = document.getElementById('carousel-items');
+        const carouselPrevBtn = document.getElementById('carousel-prev');
+        const carouselNextBtn = document.getElementById('carousel-next');
+
+        let isDragging = false;
+        let startX;
+        let scrollLeft;
+
+        carouselItems.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            carouselItems.classList.add('cursor-grabbing');
+            startX = e.pageX - carouselItems.offsetLeft;
+            scrollLeft = carouselItems.scrollLeft;
+        });
+
+        carouselItems.addEventListener('mouseleave', () => {
+            isDragging = false;
+            carouselItems.classList.remove('cursor-grabbing');
+        });
+
+        carouselItems.addEventListener('mouseup', () => {
+            isDragging = false;
+            carouselItems.classList.remove('cursor-grabbing');
+        });
+
+        carouselItems.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+            e.preventDefault();
+            const x = e.pageX - carouselItems.offsetLeft;
+            const walk = (x - startX) * 2; // The '2' is a sensitivity multiplier
+            carouselItems.scrollLeft = scrollLeft - walk;
+        });
+
+        // Touch events for mobile
+        carouselItems.addEventListener('touchstart', (e) => {
+            isDragging = true;
+            startX = e.touches[0].pageX - carouselItems.offsetLeft;
+            scrollLeft = carouselItems.scrollLeft;
+        });
+
+        carouselItems.addEventListener('touchend', () => {
+            isDragging = false;
+        });
+
+        carouselItems.addEventListener('touchmove', (e) => {
+            if (!isDragging) return;
+            const x = e.touches[0].pageX - carouselItems.offsetLeft;
+            const walk = (x - startX) * 2;
+            carouselItems.scrollLeft = scrollLeft - walk;
+        });
+
+        carouselNextBtn.addEventListener('click', () => {
+            carouselItems.scrollBy({
+                left: carouselItems.offsetWidth,
+                behavior: 'smooth'
+            });
+        });
+
+        carouselPrevBtn.addEventListener('click', () => {
+            carouselItems.scrollBy({
+                left: -carouselItems.offsetWidth,
+                behavior: 'smooth'
+            });
+        });
+
+        // Product Card Enhancements - "Quick Add +" button state change
+        document.querySelectorAll('.quick-add-btn').forEach(button => {
+            const originalText = button.textContent;
+            button.addEventListener('mouseenter', () => {
+                button.textContent = 'Quick Add +';
+            });
+            button.addEventListener('mouseleave', () => {
+                button.textContent = originalText;
+            });
+        });
+
+
+        // --- Social Proof - Dynamic Testimonials ---
+        const testimonialCarousel = document.getElementById('testimonial-carousel');
+        const testimonialDotsContainer = document.getElementById('testimonial-dots');
+        const testimonials = testimonialCarousel.children;
+        let currentTestimonialIndex = 0;
+
+        function updateTestimonialCarousel() {
+            const offset = -currentTestimonialIndex * 100; // 100% width per slide
+            testimonialCarousel.style.transform = `translateX(${offset}%)`;
+
+            // Update dots
+            Array.from(testimonialDotsContainer.children).forEach((dot, index) => {
+                if (index === currentTestimonialIndex) {
+                    dot.classList.add('active', 'bg-[--secondary]');
+                    dot.classList.remove('bg-gray-300');
+                } else {
+                    dot.classList.remove('active', 'bg-[--secondary]');
+                    dot.classList.add('bg-gray-300');
+                }
+            });
+        }
+
+        // Initial update
+        updateTestimonialCarousel();
+
+        // Auto-rotate testimonials
+        setInterval(() => {
+            currentTestimonialIndex = (currentTestimonialIndex + 1) % testimonials.length;
+            updateTestimonialCarousel();
+        }, 5000); // Change testimonial every 5 seconds
+
+        // Dot navigation
+        testimonialDotsContainer.addEventListener('click', (event) => {
+            if (event.target.classList.contains('dot')) {
+                currentTestimonialIndex = parseInt(event.target.dataset.index);
+                updateTestimonialCarousel();
+            }
+        });
+
+        // --- Social Proof - Real-time Purchase Pop-up ---
+        const purchasePopup = document.getElementById('purchase-popup');
+        const popupText = document.getElementById('popup-text');
+        const dummyPurchases = [
+            "Jane from London just bought Hydrating Serum!",
+            "Mark from Sydney just bought Organic Cleansing Balm!",
+            "Sarah from NYC just bought SPF 30 Moisturizer!",
+            "Chris from Toronto just bought Vitamin C Mask!"
+        ];
+
+        function showPurchasePopup() {
+            const randomPurchase = dummyPurchases[Math.floor(Math.random() * dummyPurchases.length)];
+            popupText.textContent = randomPurchase;
+            purchasePopup.style.display = 'flex'; // Use flex to center content
+            purchasePopup.style.animation = 'slideInUp 0.5s ease-out forwards, fadeOut 0.5s 4.5s forwards';
+
+            setTimeout(() => {
+                purchasePopup.style.display = 'none';
+            }, 5000); // Display for 5 seconds
+        }
+
+        setInterval(showPurchasePopup, 10000); // Show a new pop-up every 10 seconds
+        showPurchasePopup(); // Show one immediately on load
+
+        // --- Promotional Modules - Limited-Time Bar Countdown ---
+        const countdownTimer = document.getElementById('countdown-timer');
+
+        function updateCountdown() {
+            const now = new Date();
+            // Set a target date (e.g., 2 hours from now)
+            const targetDate = new Date(now.getTime() + 2 * 60 * 60 * 1000 + 12 * 60 * 1000); // 2 hours 12 minutes from now
+
+            const interval = setInterval(() => {
+                const now = new Date().getTime();
+                const distance = targetDate.getTime() - now;
+
+                if (distance < 0) {
+                    clearInterval(interval);
+                    countdownTimer.textContent = "EXPIRED!";
+                    return;
+                }
+
+                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+                countdownTimer.textContent =
+                    `${String(hours).padStart(2, '0')}h ` +
+                    `${String(minutes).padStart(2, '0')}m ` +
+                    `${String(seconds).padStart(2, '0')}s`;
+            }, 1000);
+        }
+
+        updateCountdown();
+
+        // --- Promotional Modules - Spin the Wheel ---
+        const spinWheelModalOverlay = document.getElementById('spin-wheel-modal-overlay');
+        const spinWheelInner = document.getElementById('spin-wheel-inner');
+        const discountResultElem = document.getElementById('discount-result');
+        const discountValueElem = document.getElementById('discount-value');
+        const closeSpinModalBtn = document.getElementById('close-spin-modal');
+        const openSpinModalBtn = document.getElementById('open-spin-modal-btn'); // For testing/manual trigger
+        const spinEmailInput = document.getElementById('spin-email-input');
+        const spinEmailError = document.getElementById('spin-email-error');
+
+        const discounts = ["10% OFF", "15% OFF", "FREE SHIPPING", "20% OFF", "BUY ONE GET ONE", "25% OFF"];
+
+        // Show modal after a delay (e.g., 5 seconds) or on specific interaction
+        setTimeout(() => {
+            spinWheelModalOverlay.classList.add('active');
+        }, 5000); // Show after 5 seconds
+
+        openSpinModalBtn.addEventListener('click', () => {
+            spinWheelModalOverlay.classList.add('active');
+        });
+
+        closeSpinModalBtn.addEventListener('click', () => {
+            spinWheelModalOverlay.classList.remove('active');
+            discountResultElem.style.display = 'none'; // Hide result if closed
+            spinWheelInner.style.transform = 'rotate(0deg)'; // Reset wheel
+            spinWheelInner.classList.remove('spinning');
+            spinEmailInput.classList.remove('input-error'); // Reset error state
+            spinEmailError.classList.add('hidden');
+        });
+
+        spinWheelInner.addEventListener('click', () => {
+            const email = spinEmailInput.value;
+            if (!email || !email.includes('@') || !email.includes('.')) {
+                spinEmailInput.classList.add('input-error');
+                spinEmailError.classList.remove('hidden');
+                return;
+            } else {
+                spinEmailInput.classList.remove('input-error');
+                spinEmailError.classList.add('hidden');
+            }
+
+            if (spinWheelInner.classList.contains('spinning')) return;
+
+            spinWheelInner.classList.add('spinning');
+            discountResultElem.style.display = 'none';
+
+            // Calculate a random degree for the spin, ensuring it lands on a segment
+            // Each segment is 360 / 6 = 60 degrees.
+            // We want to land in the middle of a segment.
+            const randomIndex = Math.floor(Math.random() * discounts.length);
+            const degreesPerSegment = 360 / discounts.length;
+            const targetDegree = (360 * 5) + (randomIndex * degreesPerSegment) + (degreesPerSegment / 2); // Spin multiple times + land in middle of segment
+
+            spinWheelInner.style.transform = `rotate(${targetDegree}deg)`;
+
+            // After spin animation completes
+            setTimeout(() => {
+                spinWheelInner.classList.remove('spinning');
+                discountValueElem.textContent = discounts[randomIndex];
+                discountResultElem.style.display = 'block';
+                alert(`Congratulations! You won ${discounts[randomIndex]}! Check your email for the code.`);
+            }, 4000); // Match this with CSS transition duration
+        });
+
+        // --- Interactive States - Button Ripple Effect ---
+        document.querySelectorAll('.ripple-button').forEach(button => {
+            button.addEventListener('click', function(e) {
+                const ripple = document.createElement('span');
+                ripple.classList.add('ripple');
+
+                // Get click position relative to the button
+                const rect = button.getBoundingClientRect();
+                const size = Math.max(rect.width, rect.height);
+                const x = e.clientX - rect.left - (size / 2);
+                const y = e.clientY - rect.top - (size / 2);
+
+                ripple.style.width = ripple.style.height = `${size}px`;
+                ripple.style.left = `${x}px`;
+                ripple.style.top = `${y}px`;
+
+                this.appendChild(ripple);
+
+                // Remove the ripple element after animation
+                ripple.addEventListener('animationend', () => {
+                    ripple.remove();
+                });
+            });
+        });
+
+        // --- Navigation System Upgrade - Magnetic Hover Effect ---
+        document.querySelectorAll('.magnetic-link').forEach(link => {
+            const strength = 0.1; // How strong the magnetic effect is
+
+            link.addEventListener('mousemove', (e) => {
+                const rect = link.getBoundingClientRect();
+                const centerX = rect.left + rect.width / 2;
+                const centerY = rect.top + rect.height / 2;
+
+                const offsetX = (e.clientX - centerX) * strength;
+                const offsetY = (e.clientY - centerY) * strength;
+
+                link.style.transform = `translate(${offsetX}px, ${offsetY}px)`;
+            });
+
+            link.addEventListener('mouseleave', () => {
+                link.style.transform = `translate(0px, 0px)`;
+            });
+        });
+
+    </script>
+</body>
+</html>

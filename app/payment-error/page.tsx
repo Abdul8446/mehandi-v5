@@ -1,17 +1,15 @@
 // app/payment-error/page.tsx
-
+'use client';
 import { errorMessages } from "@/lib/PaymentErrors";
 import { TriangleAlert } from "lucide-react";
+import { useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 
-export default function PaymentErrorPage({
-  searchParams,
-}: {
-  searchParams: { error: string; message?: string };
-}) {
-  const errorDetails = errorMessages[searchParams.error] || {
-    title: 'Payment Failed',
-    description: searchParams.message || 'Something went wrong with your payment.',
-  };
+function PaymentErrorContent() {
+  const searchParams = useSearchParams();
+  const errorType = searchParams.get('error') || 'default';
+  const message = searchParams.get('message') || 'An unexpected error occurred';
+  const orderId = searchParams.get('orderId') || 'unknown';
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4">
@@ -21,10 +19,10 @@ export default function PaymentErrorPage({
         </div>
         
         <h1 className="text-2xl font-bold text-gray-800 mb-2">
-          {errorDetails.title}
+          {errorType}
         </h1>
         <p className="text-gray-600 mb-6">
-          {errorDetails.description}
+          {message}
         </p>
 
         <div className="space-y-3">
@@ -57,6 +55,14 @@ export default function PaymentErrorPage({
         </div>
       </div>
     </div>
+  );
+}
+
+export default function PaymentErrorPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <PaymentErrorContent />
+    </Suspense>
   );
 }
 

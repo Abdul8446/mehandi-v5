@@ -1,13 +1,14 @@
 // app/payment-pending/page.tsx
 
 'use client';
+import { Suspense, use } from 'react';
 import { CheckStatusButton } from '../../components/payment/CheckStatusButton';
+import { useSearchParams } from 'next/navigation';
 
-export default function PaymentPendingPage({
-  searchParams,
-}: {
-  searchParams: { orderId: string };
-}) {
+function PaymentPendingContent() {
+  const searchParams = useSearchParams();
+  const orderId = searchParams.get('orderId') || 'unknown';
+
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4">
       <div className="max-w-md w-full bg-white p-8 rounded-lg shadow-sm border border-gray-200 text-center">
@@ -21,12 +22,12 @@ export default function PaymentPendingPage({
           Payment Processing
         </h1>
         <p className="text-gray-600 mb-6">
-          Your payment for order #{searchParams.orderId} is being processed. 
+          Your payment for order #{orderId} is being processed. 
           This may take a few moments.
         </p>
 
         <div className="space-y-4">
-          <CheckStatusButton orderId={searchParams.orderId} />
+          <CheckStatusButton orderId={orderId} />
           
           <div className="pt-4 border-t border-gray-100">
             <h3 className="text-sm font-medium text-gray-500 mb-2">
@@ -46,6 +47,15 @@ export default function PaymentPendingPage({
     </div>
   );
 }
+
+
+export default function PaymentPendingPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <PaymentPendingContent />
+    </Suspense>
+  );
+}  
 
 function ClockIcon(props: React.SVGProps<SVGSVGElement>) {
   return (

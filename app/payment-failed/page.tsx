@@ -1,16 +1,18 @@
 // app/payment-failed/page.tsx
+'use client';
 import { XCircle, CreditCard, RefreshCw, ShoppingCart, HelpCircle } from 'lucide-react';
 import Link from 'next/link';
 import { errorMessages } from '@/lib/PaymentErrors';
 import Button from '@/components/ui/Button';
+import { useSearchParams } from 'next/navigation';
+import { Suspense } from 'react';
 
-export default function PaymentFailedPage({
-  searchParams,
-}: {
-  searchParams: { orderId?: string; errorCode?: string };
-}) {
-  const errorDetails = searchParams.errorCode 
-    ? errorMessages[searchParams.errorCode] || errorMessages.default
+function PaymentFailedContent() {
+  const searchParams = useSearchParams();
+  const errorCode = searchParams.get('errorCode') || 'default';
+  const orderId = searchParams.get('orderId') || 'unknown';
+  const errorDetails = errorCode 
+    ? errorMessages[errorCode] || errorMessages.default
     : errorMessages.default;
 
   return (
@@ -46,12 +48,12 @@ export default function PaymentFailedPage({
               <CreditCard className="mr-2 h-5 w-5 text-gray-500" />
               Order Summary
             </h2>
-            {searchParams.orderId && (
+            {orderId && (
               <div className="bg-gray-50 rounded-lg p-4 mb-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <p className="text-sm text-gray-500">Order Number</p>
-                    <p className="font-medium">{searchParams.orderId}</p>
+                    <p className="font-medium">{orderId}</p>
                   </div>
                   <div>
                     <p className="text-sm text-gray-500">Date</p>
@@ -72,10 +74,10 @@ export default function PaymentFailedPage({
                 <span className="text-gray-600">Payment Status</span>
                 <span className="font-medium text-red-600">Failed</span>
               </div>
-              {searchParams.errorCode && (
+              {errorCode && (
                 <div className="flex justify-between">
                   <span className="text-gray-600">Error Code</span>
-                  <span className="font-mono">{searchParams.errorCode}</span>
+                  <span className="font-mono">{errorCode}</span>
                 </div>
               )}
             </div>
@@ -84,7 +86,7 @@ export default function PaymentFailedPage({
           {/* Action Buttons */}
           <div className="border-t border-gray-200 p-6 space-y-4">
             <Link 
-              href={`/checkout?orderId=${searchParams.orderId || ''}`} 
+              href={`/checkout?orderId=${orderId || ''}`} 
               className="block"
             >
               <Button className="w-full" size="lg">
@@ -129,5 +131,13 @@ export default function PaymentFailedPage({
         </div>
       </footer>
     </div>
+  );
+}
+
+export default function PaymentFailedPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <PaymentFailedContent />
+    </Suspense>
   );
 }
