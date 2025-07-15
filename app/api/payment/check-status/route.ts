@@ -2,6 +2,7 @@
 import { NextResponse } from 'next/server';
 import { getClient } from '@/lib/pg-client';
 import Order from '@/models/Order';
+const redirectUrl = process.env.PHONEPE_ENV === "UAT" ? "http://localhost:3000" : process.env.NEXT_PUBLIC_BASE_URL;
 
 export async function GET(request: Request) {
   try {
@@ -56,18 +57,19 @@ async function updateOrderStatus(orderId: string, status: string) {
 }
 
 function redirectToOrderPage(orderId: string) {
-  const url = new URL(`/order-confirmation/${orderId}`, process.env.NEXT_PUBLIC_BASE_URL);
+  const url = new URL(`/order-confirmation/${orderId}`, redirectUrl);
+  url.searchParams.set('clearCart', 'true');
   return NextResponse.redirect(url);
 }
 
 function redirectToPendingPage(orderId: string) {
-  const url = new URL('/payment-pending', process.env.NEXT_PUBLIC_BASE_URL);
+  const url = new URL('/payment-pending', redirectUrl);
   url.searchParams.set('orderId', orderId);
   return NextResponse.redirect(url);
 }
 
 function redirectToFailurePage(orderId: string, errorCode?: string) {
-  const url = new URL('/payment-failed', process.env.NEXT_PUBLIC_BASE_URL);
+  const url = new URL('/payment-failed', redirectUrl);
   url.searchParams.set('orderId', orderId);
   if (errorCode) {
     url.searchParams.set('errorCode', errorCode);

@@ -1,7 +1,7 @@
 // app/api/payment/create/route.ts
 import { NextResponse } from "next/server";
 import { getClient, randomUUID } from "@/lib/pg-client";
-import { StandardCheckoutPayRequest } from "pg-sdk-node";
+import { StandardCheckoutPayRequest,UpiIntentPayRequestBuilder, UpiQrPaymentV2Instrument } from "pg-sdk-node";
 import { CreateOrderRequest, CreateOrderResponse, ErrorResponse } from "@/types/payment";
 
 export async function POST(request: Request) {
@@ -17,7 +17,7 @@ export async function POST(request: Request) {
 
     const client = getClient();
     const merchantOrderId = orderId;
-    const redirectUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/api/payment/check-status?merchantOrderId=${merchantOrderId}`;
+    const redirectUrl = process.env.PHONEPE_ENV === "UAT" ? `http://localhost:3000/api/payment/check-status?merchantOrderId=${merchantOrderId}` : `${process.env.NEXT_PUBLIC_BASE_URL}/api/payment/check-status?merchantOrderId=${merchantOrderId}`;
 
     const requestBody = StandardCheckoutPayRequest.builder()
       .merchantOrderId(merchantOrderId)
@@ -37,7 +37,7 @@ export async function POST(request: Request) {
           orderId: response.orderId,
           redirectUrl: response.redirectUrl,
           callbackUrl: redirectUrl,
-          checkStatusUrl: `${process.env.NEXT_PUBLIC_BASE_URL}/api/payment/check-status?merchantOrderId=${merchantOrderId}`,
+          checkStatusUrl: process.env.PHONEPE_ENV === "UAT" ? `http://localhost:3000/api/payment/check-status?merchantOrderId=${merchantOrderId}` : `${process.env.NEXT_PUBLIC_BASE_URL}/api/payment/check-status?merchantOrderId=${merchantOrderId}`,
       },
     });
   } catch (error: any) {

@@ -1,6 +1,6 @@
 'use client';
-import { useEffect, useState } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { Suspense, use, useEffect, useState } from 'react';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { CheckCircle, Package, Truck, MapPin, CreditCard } from 'lucide-react';
 import { IOrder } from '@/models/Order';
@@ -9,39 +9,84 @@ import { useAuth } from '@/contexts/AuthContext';
 import toast from 'react-hot-toast';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import Button from '@/components/ui/Button';
+import { useCart } from '@/contexts/CartContext';
+import { is } from 'date-fns/locale';
 
-const OrderConfirmationPage = () => {
+const OrderConfirmationComponent = () => {
   const { id: orderId } = useParams();
+  const { clearCart } = useCart();
+  const { isAuthenticated } = useAuth();
   const [order, setOrder] = useState<IOrder | null>(null);
   const [orderLoading, setOrderLoading] = useState(true);
   const { user, loading } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams()
 
-  useEffect(() => {
-    const loadOrder = async () => {
+  const isConfirmClearCart = searchParams.get('clearCart') === 'true';
+
+  // useEffect(() => {
+  //   const loadOrder = async () => { 
+  //     isAuthenticated && isConfirmClearCart && await clearCart();
+
+  //     if (typeof orderId !== 'string') return;
+      
+  //     try {
+  //       const fetchedOrder = await fetchOrder(orderId);
+  //       console.log(fetchedOrder, 'fetchedOrder');
+  //       console.log(user, 'user');
+  //       // Check if the order belongs to the current user
+  //       if (!loading && fetchedOrder?.userId !== user?.id) {
+  //         toast.error('Invalid user');
+  //         router.push('/my-orders');
+  //         return;
+  //       }else{
+  //         setOrder(fetchedOrder);
+  //       }
+  //     } catch (error) {
+  //       console.error('Error loading order:', error);
+  //     } finally {
+  //       if(!loading) setOrderLoading(false);
+  //     }
+  //   };
+
+  //   loadOrder();
+  // }, [orderId, user, loading, isAuthenticated]);
+
+useEffect(() => {
+  // Only proceed if auth initialization is complete and user is authenticated
+  if (!loading) {
+    if (!isAuthenticated) {
+      toast.error('You need to be logged in to view your order details.');
+      router.push('/auth');
+      return;
+    }
+
+    const loadOrder = async () => { 
+      isAuthenticated && isConfirmClearCart && await clearCart();
+
       if (typeof orderId !== 'string') return;
       
       try {
         const fetchedOrder = await fetchOrder(orderId);
-        console.log(fetchedOrder, 'fetchedOrder');
-        console.log(user, 'user');
+        
         // Check if the order belongs to the current user
-        if (!loading && fetchedOrder?.userId !== user?.id) {
+        if (fetchedOrder?.userId !== user?.id) {
           toast.error('Invalid user');
           router.push('/my-orders');
           return;
-        }else{
+        } else {
           setOrder(fetchedOrder);
         }
       } catch (error) {
         console.error('Error loading order:', error);
       } finally {
-        if(!loading) setOrderLoading(false);
+        setOrderLoading(false);
       }
     };
 
     loadOrder();
-  }, [orderId, user, loading]);
+  }
+}, [orderId, user, loading, isAuthenticated]);
 
   const formatDate = (date?: Date | string) => {
     if (!date) return 'N/A';
@@ -430,4 +475,12 @@ const OrderConfirmationPage = () => {
   );
 };
 
-export default OrderConfirmationPage;
+
+
+export default function OrderConfirmationPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <OrderConfirmationComponent />
+    </Suspense>
+  );
+}
