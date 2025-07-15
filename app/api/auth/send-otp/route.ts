@@ -1,12 +1,12 @@
 import { NextResponse } from 'next/server';
-import twilio from 'twilio';
+import { SendOtpRequest, SendOtpResponse } from '@/types/otp';
 
 // const accountSid = process.env.TWILIO_ACCOUNT_SID;
 // const authToken = process.env.TWILIO_AUTH_TOKEN;
 // const client = twilio(accountSid, authToken);
 
 export async function POST(request: Request) {
-  const { phone } = await request.json();
+  const { phone }: SendOtpRequest = await request.json();
 
   if (!phone || phone.length !== 10) {
     return NextResponse.json(
@@ -16,16 +16,30 @@ export async function POST(request: Request) {
   }
 
   try {
-    // In production, you would send a real OTP
-    // const verification = await client.verify.v2
-    //   .services(process.env.TWILIO_SERVICE_SID)
-    //   .verifications.create({ to: `+91${phone}`, channel: 'sms' });
+    const response = await fetch(
+      `https://2factor.in/API/V1/${process.env.NEXT_PUBLIC_2FACTOR_API_KEY}/SMS/${phone}/AUTOGEN/YourAppName`,
+      { method: "GET" }
+    );
+
+    const data: SendOtpResponse = await response.json();
+
+    if (data.Status === "Success") {
+      return NextResponse.json({
+        success: true,
+        sessionId: data.Details,
+      });
+    } else {
+      return NextResponse.json(
+        { error: "Failed to send OTP" },
+        { status: 400 }
+      );
+    }
 
     // For demo, we'll just return success
-    return NextResponse.json(
-      { success: true, message: 'OTP sent successfully' },
-      { status: 200 }
-    );
+    // return NextResponse.json(
+    //   { success: true, message: 'OTP sent successfully' },
+    //   { status: 200 }
+    // );
   } catch (error) {
     return NextResponse.json(
       { error: 'Failed to send OTP' },
