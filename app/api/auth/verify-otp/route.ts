@@ -5,9 +5,6 @@ import connectDB from '@/lib/mongoose';
 import { UserRole } from '@/models/User';
 import { generateToken } from '@/lib/authUtils';
 
-// const accountSid = process.env.TWILIO_ACCOUNT_SID;
-// const authToken = process.env.TWILIO_AUTH_TOKEN;
-// const client = twilio(accountSid, authToken);
 
 export async function POST(request: Request) {
   const { phone, otp, name } = await request.json();
