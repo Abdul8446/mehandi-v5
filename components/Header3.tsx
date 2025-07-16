@@ -388,7 +388,7 @@ const Header3 = () => {
                       <div className="text-sm text-gray-500">{user?.phone}</div>
                     </div>
                     {[
-                      { href: "/profile", label: "Profile", key: "profile" },
+                      // { href: "/profile", label: "Profile", key: "profile" },
                       { href: "/my-orders", label: "My Orders", key: "my-orders" },
                       { href: "/my-bookings", label: "My Bookings", key: "my-bookings" },
                     ].map((item) => (

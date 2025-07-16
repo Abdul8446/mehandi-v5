@@ -195,7 +195,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                 alt={product.name}
                 width={500}
                 height={500}
-                className="object-cover w-full h-full"
+                className="object-cover object-center w-full h-full"
                 onError={() => setImageError(true)}
               />
             </motion.div>

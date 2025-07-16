@@ -11,21 +11,19 @@ import { WishlistProvider } from "@/contexts/WishlistContext"
 
 
 export function Providers({ children }: { children: React.ReactNode }) {
-    return <MaintenanceWrapper>
-                <AuthProvider>
-                    <AdminAuthProvider>
-                        <ProductProvider>
-                            <BookingProvider>
-                                <CartProvider>
-                                    <WishlistProvider>
-                                        {children}
-                                    </WishlistProvider>
-                                </CartProvider>
-                            </BookingProvider>
-                        </ProductProvider>
-                    </AdminAuthProvider>
-                </AuthProvider>
-            </MaintenanceWrapper>
+    return  <AuthProvider>
+                <AdminAuthProvider>
+                    <ProductProvider>
+                        <BookingProvider>
+                            <CartProvider>
+                                <WishlistProvider>
+                                    {children}
+                                </WishlistProvider>
+                            </CartProvider>
+                        </BookingProvider>
+                    </ProductProvider>
+                </AdminAuthProvider>
+            </AuthProvider>
 }
 
 

@@ -615,6 +615,12 @@ const CheckoutPage = () => {
                         </div>   
                       </div>
                     </div>
+
+                    <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-md relative mb-4" role="alert">
+                      <strong className="font-bold">Important:</strong>
+                      <span className="block sm:inline"> All card payments are currently not working. Please pay with UPI instead.</span>
+                    </div>
+
                     
                     <div className="flex justify-between">
                       <Button 

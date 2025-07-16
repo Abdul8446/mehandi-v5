@@ -1,12 +1,13 @@
 import mongoose, { Schema, Document, Types } from 'mongoose'
 
-interface Review {
+export interface Review {
   userId: string
   user: string
   rating: number
   comment: string
   avatar: string
-  date: string
+  createdAt: Date
+  updatedAt?: Date
 }
 
 interface Specifications {
@@ -30,9 +31,9 @@ export interface IProduct extends Document {
   images: string[]
   category: string
   description: string
-  features: string[]
+  features?: string[]
   specifications: Specifications
-  rating: number
+  rating?: number
   reviewsCount: number
   reviews: Review[]
   inStock: boolean
@@ -42,6 +43,14 @@ export interface IProduct extends Document {
   tags: string[]
   status: string
 }
+
+const ReviewSchema = new Schema({
+  userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+  user: { type: String, required: true },
+  rating: { type: Number, required: true, min: 1, max: 5 },
+  comment: { type: String, required: true, minlength: 10, maxlength: 500 },
+  avatar: { type: String },
+}, { timestamps: true });
 
 const ProductSchema: Schema = new Schema({
   _id: String,
@@ -65,16 +74,7 @@ const ProductSchema: Schema = new Schema({
   },
   rating: { type: Number },
   reviewsCount: { type: Number },
-  reviews: [
-    {
-      userId: { type: String },
-      user: { type: String },
-      rating: { type: Number },
-      comment: { type: String },
-      avatar: { type: String },
-      date: { type: Date },
-    }
-  ],
+  reviews: [ReviewSchema],
   inStock: { type: Boolean },
   stock: { type: Number, default: 0 },
   isFeatured: { type: Boolean, default: false },
@@ -86,6 +86,16 @@ const ProductSchema: Schema = new Schema({
     collection: 'product', timestamps: true, // 👈 match Atlas collection name exactly
   }
 )
+
+// Update product rating when new reviews are added
+ProductSchema.pre<IProduct>('save', function(next) {
+  if (this.reviews && this.reviews.length > 0) {
+    const totalRating = this.reviews.reduce((sum, review) => sum + review.rating, 0);
+    this.rating = totalRating / this.reviews.length;
+    this.reviewsCount = this.reviews.length;
+  }
+  next();
+});
          
 export default mongoose.models.Product ||
   mongoose.model<IProduct>('Product', ProductSchema)
