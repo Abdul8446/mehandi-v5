@@ -104,13 +104,15 @@ export async function GET(
       );
     }
 
-    const rating= product.reviews.reduce((sum: number, review: Review) => sum + review.rating, 0);
+    // const rating= product.reviews.reduce((sum: number, review: Review) => sum + review.rating, 0);
+    const totalRating = product.reviews.reduce((sum: number, review: Review) => sum + review.rating, 0);
+    const averageRating = product.reviews.length > 0 ? totalRating / product.reviews.length : 0;
     const reviewsCount = product.reviews.length;
   
 
     return NextResponse.json({ 
       reviews: product.reviews, 
-      rating: rating, 
+      rating: averageRating, 
       reviewsCount: reviewsCount 
     });
   } catch (error) {
