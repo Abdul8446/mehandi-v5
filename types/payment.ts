@@ -31,9 +31,9 @@ export interface CreateOrderResponse {
     data: {
         success: boolean;
         orderId: string; // Optional, can be generated if not provided
-        redirectUrl: string; // URL to redirect the user for payment
-        callbackUrl: string; // Optional, for webhook or callback URL
-        checkStatusUrl: string; // Optional, URL to check payment status
+        redirectUrl?: string; // URL to redirect the user for payment
+        callbackUrl?: string; // Optional, for webhook or callback URL
+        checkStatusUrl?: string; // Optional, URL to check payment status
     }
 }
 

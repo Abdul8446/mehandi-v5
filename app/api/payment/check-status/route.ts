@@ -42,17 +42,19 @@ export async function GET(request: Request) {
 
   } catch (error: any) {
     console.error("Error in check-status:", error);
-    return redirectToErrorPage('server_error', error.message);
+    const orderId = new URL(request.url).searchParams.get('merchantOrderId');
+    return await redirectToErrorPage('server_error', error.message, orderId || undefined);
   }
 }
 
-// Helper functions
+
 async function updateOrderStatus(orderId: string, status: string) {
   await Order.findOneAndUpdate(
     { orderId },
     { 
       paymentStatus: status,
-    }
+    },
+    { new: true }
   );
 }
 
@@ -62,26 +64,41 @@ function redirectToOrderPage(orderId: string) {
   return NextResponse.redirect(url);
 }
 
-function redirectToPendingPage(orderId: string) {
+const redirectToPendingPage = async (orderId: string) => {
   const url = new URL('/payment-pending', redirectUrl);
   url.searchParams.set('orderId', orderId);
+  await Order.deleteOne({ orderId });
   return NextResponse.redirect(url);
 }
 
-function redirectToFailurePage(orderId: string, errorCode?: string) {
+const redirectToFailurePage = async (orderId: string, errorCode?: string) => {
   const url = new URL('/payment-failed', redirectUrl);
   url.searchParams.set('orderId', orderId);
   if (errorCode) {
     url.searchParams.set('errorCode', errorCode);
   }
+
+  await Order.deleteOne({ orderId });
   return NextResponse.redirect(url);
 }
 
-function redirectToErrorPage(errorType: string, message?: string) {
+async function redirectToErrorPage(errorType: string, message?: string, orderId?: string) {
   const url = new URL('/payment-error', process.env.NEXT_PUBLIC_BASE_URL);
   url.searchParams.set('error', errorType);
   if (message) {
     url.searchParams.set('message', encodeURIComponent(message));
+  }
+
+  // Always attempt to delete the order if orderId exists
+  if (orderId) {
+    try {
+      await Order.deleteOne({ orderId });
+      console.log(`Deleted order ${orderId} due to error: ${errorType}`);
+    } catch (deleteError) {
+      console.error(`Failed to delete order ${orderId}:`, deleteError);
+      // Add error details to redirect URL
+      url.searchParams.set('deleteFailed', 'true');
+    }
   }
   return NextResponse.redirect(url);
 }
