@@ -48,10 +48,11 @@ const categories = [
   { id: 'all', name: 'All Categories' },
   { id: 'bridal-essentials', name: 'Bridal Essentials' },
   { id: 'mehandi-cones', name: 'Mehandi Cones' },
-  { id: 'henna-powders', name: 'Henna Powders' },
+  { id: 'hair-products', name: 'Hair Products' },
   { id: 'stencils-and-practice', name: 'Stencils and Practice' },
+  { id: 'beginners-kit', name: 'Beginners Kit' },
   // { id: 'accessories', name: 'Accessories' },
-  // { id: 'aftercare', name: 'Aftercare' },
+  { id: 'aftercare', name: 'Aftercare' },
   // { id: 'hair-henna', name: 'Hair Henna' },
   // { id: 'books', name: 'Books' }
 ];
