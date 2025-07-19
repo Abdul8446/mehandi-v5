@@ -12,6 +12,7 @@ export interface CartItem {
 export interface ICart extends Document {
   userId: string;
   items: CartItem[];
+  expiresAt: Date;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -32,7 +33,8 @@ const CartSchema = new Schema<ICart>(
         quantity: { type: Number, required: true, default: 1 },
         weight: { type: Number, required: true }
       }
-    ]
+    ],
+    expiresAt: { type: Date, required: true },
   },
   { timestamps: true }
 );

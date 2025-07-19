@@ -326,18 +326,22 @@
 
         /* Hero Section Redesign - Layered Background */
         .hero-section {
-            background: linear-gradient(135deg, #e0f2e0 0%, #a7d9b9 100%);
+            /* Updated background to use the provided image */
+            background: linear-gradient(135deg, rgba(224, 242, 224, 0.8) 0%, rgba(167, 217, 185, 0.8) 100%),
+                        url('https://images.stockcake.com/public/1/7/1/1719bc0f-b602-4768-a8c4-e86469992a37_large/aloe-vera-skincare-stockcake.jpg') no-repeat center center;
+            background-size: cover;
             position: relative;
             overflow: hidden;
         }
-        .hero-section::before {
+        /* Removed the ::before pseudo-element as the new background image serves the purpose */
+        /* .hero-section::before {
             content: "";
             background: url('data:image/svg+xml;utf8,<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="2" fill="%230e3a23" /></svg>') repeat;
             opacity: 0.05;
             position: absolute;
             inset: 0;
-            z-index: 0; /* Ensure it's behind content */
-        }
+            z-index: 0;
+        } */
 
         /* Hero Section Redesign - Animated SVG Arrow */
         .arrow-down-animated {
@@ -482,7 +486,7 @@
                         <div id="quiz-result" class="quiz-step hidden text-center">
                             <h3 class="text-xl font-bold mb-4 text-[--primary]">Your Personalized Recommendation:</h3>
                             <div id="recommended-product" class="bg-[#f8fcf8] p-4 rounded-xl shadow-inner">
-                                <img src="https://placehold.co/150x150/a7d9b9/1a4d2e?text=Product" alt="Recommended Product" class="mx-auto mb-4 rounded-lg">
+                                <img src="https://images.stockcake.com/public/1/7/1/1719bc0f-b602-4768-a8c4-e86469992a37_large/aloe-vera-skincare-stockcake.jpg" alt="Recommended Product" class="mx-auto mb-4 rounded-lg">
                                 <h4 class="text-lg font-semibold text-[--secondary]" id="product-name">Product Name Here</h4>
                                 <p class="text-gray-600 text-sm mb-4" id="product-description">A perfect solution for your needs.</p>
                                 <button class="bg-[--secondary] text-white py-2 px-6 rounded-full hover:bg-[#556b2f] transition-colors ripple-button">View Product</button>
@@ -764,7 +768,7 @@
                 <div class="grid grid-cols-3 gap-2">
                     <img src="https://placehold.co/100x100/a7d9b9/1a4d2e?text=Insta1" alt="Instagram Post 1" class="w-full h-auto object-cover rounded-md">
                     <img src="https://placehold.co/100x100/e0f2e0/1a4d2e?text=Insta2" alt="Instagram Post 2" class="w-full h-auto object-cover rounded-md">
-                    <img src="https://placehold.co/100x100/6b8e23/e0f2e0?text=Insta3" alt="Instagram Post 3" class="w-full h-auto object-cover rounded-md">
+                    <img src="https://placehold.0/100x100/6b8e23/e0f2e0?text=Insta3" alt="Instagram Post 3" class="w-full h-auto object-cover rounded-md">
                     <img src="https://placehold.co/100x100/a7d9b9/1a4d2e?text=Insta4" alt="Instagram Post 4" class="w-full h-auto object-cover rounded-md">
                     <img src="https://placehold.co/100x100/e0f2e0/1a4d2e?text=Insta5" alt="Instagram Post 5" class="w-full h-auto object-cover rounded-md">
                     <img src="https://placehold.co/100x100/6b8e23/e0f2e0?text=Insta6" alt="Instagram Post 6" class="w-full h-auto object-cover rounded-md">
@@ -892,32 +896,32 @@
             let recommendedProduct = {
                 name: "Universal Hydration Cream",
                 description: "A balanced cream suitable for all skin types, providing essential moisture.",
-                image: "https://placehold.co/150x150/a7d9b9/1a4d2e?text=Universal"
+                image: "https://images.stockcake.com/public/1/7/1/1719bc0f-b602-4768-a8c4-e86469992a37_large/aloe-vera-skincare-stockcake.jpg" // Default image
             };
 
             if (concern === 'dryness' && skinType === 'dry') {
                 recommendedProduct = {
                     name: "Intense Moisture Lock Serum",
                     description: "Deeply nourishing serum for severe dryness and dehydration.",
-                    image: "https://placehold.co/150x150/6b8e23/e0f2e0?text=Dryness"
+                    image: "https://images.stockcake.com/public/1/7/1/1719bc0f-b602-4768-a8c4-e86469992a37_large/aloe-vera-skincare-stockcake.jpg"
                 };
             } else if (concern === 'acne' && (skinType === 'oily' || skinType === 'combination')) {
                 recommendedProduct = {
                     name: "Purifying Tea Tree Cleanser",
                     description: "Targets breakouts and controls oil without over-drying.",
-                    image: "https://placehold.co/150x150/e0f2e0/1a4d2e?text=Acne"
+                    image: "https://images.stockcake.com/public/1/7/1/1719bc0f-b602-4768-a8c4-e86469992a37_large/aloe-vera-skincare-stockcake.jpg"
                 };
             } else if (concern === 'aging') {
                 recommendedProduct = {
                     name: "Anti-Aging Retinol Night Cream",
                     description: "Reduces fine lines and improves skin elasticity overnight.",
-                    image: "https://placehold.co/150x150/a7d9b9/1a4d2e?text=Aging"
+                    image: "https://images.stockcake.com/public/1/7/1/1719bc0f-b602-4768-a8c4-e86469992a37_large/aloe-vera-skincare-stockcake.jpg"
                 };
             } else if (concern === 'sensitivity') {
                 recommendedProduct = {
                     name: "Calming Chamomile Toner",
                     description: "Soothes irritated skin and reduces redness.",
-                    image: "https://placehold.co/150x150/e0f2e0/1a4d2e?text=Sensitive"
+                    image: "https://images.stockcake.com/public/1/7/1/1719bc0f-b602-4768-a8c4-e86469992a37_large/aloe-vera-skincare-stockcake.jpg"
                 };
             }
 

@@ -4,6 +4,7 @@ import "./globals.css";
 import { Providers } from "./providers";
 import { Toaster } from "react-hot-toast";
 import LayoutWrapper from "./layout-wrapper";
+import CartExpiryNotification from "@/components/CartExpiryNotification";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -39,6 +40,7 @@ export default function RootLayout({
         <Providers>
           <Toaster position="top-center" />
           <LayoutWrapper>
+          <CartExpiryNotification />
           {children}
           </LayoutWrapper>
         </Providers> {/* 👈 Wraps entire app */}

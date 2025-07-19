@@ -38,6 +38,7 @@ export interface IProduct extends Document {
   reviews: Review[]
   inStock: boolean
   stock: number
+  reserved: number
   isFeatured: boolean
   sku: string
   tags: string[]
@@ -77,6 +78,7 @@ const ProductSchema: Schema = new Schema({
   reviews: [ReviewSchema],
   inStock: { type: Boolean },
   stock: { type: Number, default: 0 },
+  reserved: { type: Number, default: 0 }, // Track reserved stock
   isFeatured: { type: Boolean, default: false },
   sku: { type: String },
   tags: [{ type: String }],

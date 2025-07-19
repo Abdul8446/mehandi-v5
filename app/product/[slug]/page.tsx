@@ -463,7 +463,7 @@ const ProductDetailPage = () => {
 
   // const { data: session } = useSession();
   const { isAuthenticated } = useAuth();
-  const { addToCart } = useCart();
+  const { addToCart, addToCartLoadingProductId } = useCart();
   const { addToWishlist, isInWishlist, removeFromWishlist } = useWishlist();
   const { products } = useProducts();
 
@@ -530,9 +530,9 @@ const ProductDetailPage = () => {
           price: product.price,
           image: product.images[0],
           weight: product.specifications?.weight || 0,
-          quantity: quantity
+          quantity: quantity,
+          stock: product.stock
         });
-        toast.success(`${product.name} added to cart`);
       } catch (error: any) {
         console.error(error.message);
       }
@@ -748,11 +748,12 @@ const ProductDetailPage = () => {
                 <Button 
                   variant="primary"
                   className={`flex-1 btn-primary flex items-center justify-center`}
-                  onClick={handleAddToCart}
-                  disabled={!product.inStock || (product.stock ? product.stock <= 0 : false)}
+                  onClick={(e) => {e.stopPropagation(); handleAddToCart(e)}}
+                  disabled={!product.inStock || addToCartLoadingProductId === product._id}
                 >
-                  <ShoppingCart size={18} className="mr-2" />
-                  {product.inStock ? 'Add to Cart' : 'Out of Stock'}
+                  {addToCartLoadingProductId === product._id && <div className="w-4 h-4 border-b-2 border-white rounded-full animate-spin" />}
+                  &nbsp;&nbsp;<ShoppingCart size={18} className="mr-2" />
+                   Add to Cart   
                 </Button>
                 <button 
                   className="w-12 h-12 border border-red-900 rounded-md flex items-center justify-center hover:bg-red-50"

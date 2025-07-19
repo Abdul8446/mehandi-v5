@@ -192,7 +192,6 @@ const CheckoutPage = () => {
 
         if (statusData.success && statusData.data.status === 'SUCCESS') {
           toast.success('Payment successful! Your order is confirmed.');
-          clearCart();
           router.push(`/order-confirmation/${orderId}`);
         } else {
           toast.error('Payment verification failed. Please contact support.');

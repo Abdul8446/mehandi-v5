@@ -1,29 +1,56 @@
+// app/cart/page.tsx
 'use client'
 
-import { Trash2, Plus, Minus, ShoppingBag, ArrowRight } from 'lucide-react';
+import { Trash2, Plus, Minus, ShoppingBag, ArrowRight, Clock } from 'lucide-react';
 import { useCart } from '@/contexts/CartContext';
 import Image from 'next/image';
 import Link from 'next/link';
 import Button from '@/components/ui/Button';
 import ProtectedRoute from '@/components/ProtectedRoute';
+import { useEffect } from 'react';
+import { toast } from 'react-hot-toast';
 
 const Cart = () => {
   const { 
     items,
     removeFromCart, 
     updateQuantity, 
+    updateQuantityLoading,
     totalItems, 
     totalWeight,
     totalPrice,
     shippingCost,
     grandTotal,
-    isMinimumOrderMet
+    isMinimumOrderMet,
+    isLoading,
+    expiresAt,
+    timeLeft,
+    isCartExpiringSoon
   } = useCart();
 
-  console.log(totalWeight, 'totalWeight');
- 
+  useEffect(() => {
+    if (isCartExpiringSoon && items.length > 0) {
+      toast(`Your cart will expire in ${timeLeft} minutes!`, {
+        icon: '⏳',
+        duration: 5000,
+      });
+    }
+  }, [isCartExpiringSoon, timeLeft, items.length]);
 
-  if (items.length === 0) {
+
+
+  if(isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-900 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (!isLoading && items.length === 0) {
     return (
       <ProtectedRoute>
         <div className="bg-gray-50 min-h-screen relative flex">
@@ -35,9 +62,9 @@ const Cart = () => {
               <h1 className="text-2xl font-bold mb-4">Your Cart is Empty</h1>
               <p className="text-gray-600 mb-6">Looks like you haven't added any products to your cart yet.</p>
               <Button variant='primary'>
-                  <Link href="/shop" className="btn-primary inline-flex items-center">
+                <Link href="/shop" className="btn-primary inline-flex items-center">
                   Continue Shopping <ArrowRight size={16} className="ml-2" />
-                  </Link>
+                </Link>
               </Button>
             </div>
           </div>
@@ -50,7 +77,23 @@ const Cart = () => {
     <ProtectedRoute>
       <div className="bg-gray-50 min-h-screen py-20">
         <div className="container mx-auto px-4">
-          <h1 className="text-2xl font-bold text-gray-800 mb-6">Your Cart ({totalItems} items)</h1>
+          <div className="flex justify-between items-center mb-6">
+            <h1 className="text-2xl font-bold text-gray-800">Your Cart ({totalItems} items)</h1>
+            {expiresAt && (
+              <div className={`flex items-center ${isCartExpiringSoon ? 'text-red-600' : 'text-gray-600'}`}>
+                <Clock size={18} className="mr-2" />
+                <span>Expires in {timeLeft} minutes</span>
+              </div>
+            )}
+          </div>
+          
+          {isCartExpiringSoon && (
+            <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mb-6 rounded">
+              <p className="font-medium">Your cart will expire soon!</p>
+              <p>Complete your purchase within {timeLeft} minutes to avoid losing your items.</p>
+            </div>
+          )}
+          
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Cart Items */}
             <div className="lg:col-span-2">
@@ -86,29 +129,50 @@ const Cart = () => {
                         <div className="flex justify-between items-center">
                           <div className="flex items-center">
                             <button 
-                              className="w-8 h-8 rounded-l-md border border-gray-300 flex items-center justify-center hover:bg-gray-100"
+                              className={`w-8 h-8 rounded-l-md border border-gray-300 flex items-center justify-center hover:bg-gray-100`}
                               onClick={() => updateQuantity(item._id, item.quantity - 1)}
+                              disabled={item.quantity <= 1 || updateQuantityLoading}
                             >
-                              <Minus size={14} />
+                              <Minus size={14} className={`${item.quantity <= 1 ? 'text-gray-400' : ''}`} />
                             </button>
                             <input 
-                              type="number" 
-                              min="1" 
+                              type="text" 
+                              // min="1" 
                               value={item.quantity} 
-                              onChange={(e) => updateQuantity(item._id, parseInt(e.target.value) || 1)}
-                              className="w-12 h-8 border-t border-b border-gray-300 text-center focus:outline-none"
+                              disabled
+                              className={`w-12 h-8 border-t border-b border-gray-300 text-center ${updateQuantityLoading ? 'bg-gray-100' : ''} focus:outline-none`}
                             />
                             <button 
-                              className="w-8 h-8 rounded-r-md border border-gray-300 flex items-center justify-center hover:bg-gray-100"
-                              onClick={() => updateQuantity(item._id, item.quantity + 1)}
+                              className={`w-8 h-8 rounded-r-md border border-gray-300 flex items-center justify-center ${
+                                  (item.stock !== undefined && item.reserved !== undefined && item.stock <= item.reserved) 
+                                    ? 'bg-gray-100 cursor-not-allowed' 
+                                    : 'hover:bg-gray-100'
+                                }`}
+                              onClick={() => {
+                                if (!(item.stock !== undefined && item.reserved !== undefined && item.stock <= item.reserved)) {
+                                  updateQuantity(item._id, item.quantity + 1);
+                                }
+                              }}
+                              disabled={
+                                (item.stock !== undefined && item.reserved !== undefined && item.stock <= item.reserved) || 
+                                updateQuantityLoading
+                              }
                             >
-                              <Plus size={14} />
+                              <Plus size={14} className={
+                                (item.stock !== undefined && item.reserved !== undefined && item.stock <= item.reserved) ? 
+                                'text-gray-400' : ''
+                              }/>
                             </button>
                           </div>
                           <div className="text-lg font-semibold">
                             ₹{(item.price * item.quantity).toFixed(2)}
                           </div>
                         </div>
+                        {/* {item.stock && (
+                          <p className="text-sm text-gray-500 mt-2">
+                            Available: {item.stock - item.quantity} in stock
+                          </p>
+                        )} */}
                       </div>
                     </div>
                   ))}
