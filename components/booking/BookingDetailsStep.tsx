@@ -286,12 +286,12 @@ const BookingDetailsStep: React.FC<BookingDetailsStepProps> = ({
               <div className="border-t border-gray-200 pt-4 mt-4">
                 <div className="flex justify-between mb-2">
                   <span className="text-gray-600">Plan Price</span>
-                  <span>₹{plan.price}</span>
+                  <span>Starting from ₹{plan.price}</span>
                 </div>
-                <div className="flex justify-between font-semibold text-lg mt-4">
+                {/* <div className="flex justify-between font-semibold text-lg mt-4">
                   <span>Total</span>
                   <span className="text-red-900">₹{plan.price}</span>
-                </div>
+                </div> */}
               </div>
             )}
           </div>

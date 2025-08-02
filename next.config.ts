@@ -3,7 +3,7 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   /* config options here */
   images: {
-    domains: ['localhost:3000','images.pexels.com','drive.google.com','images.unsplash.com','res.cloudinary.com','m.media-amazon.com','i.pinimg.com','img3.exportersindia.com','lifeline-foundation.org'],
+    domains: ['localhost:3000','images.pexels.com','drive.google.com','images.unsplash.com','res.cloudinary.com','m.media-amazon.com','i.pinimg.com','img3.exportersindia.com','lifeline-foundation.org','placehold.co'],
     remotePatterns: [new URL('http://localhost:3000/**')]
   },
   eslint: {

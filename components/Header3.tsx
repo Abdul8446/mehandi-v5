@@ -218,6 +218,7 @@ const Header3 = () => {
                   }}
                 />
               </div>
+              {/* <img className='w-16 h-16' src="/images/logo.png" alt="" /> */}
               <div className="relative">
                 <span className="text-xl font-bold bg-gradient-to-r from-brown-900 to-brown-700 bg-clip-text text-transparent">
                   Mehandi Mansion

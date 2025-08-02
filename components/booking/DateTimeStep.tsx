@@ -54,7 +54,7 @@ const DateTimeStep: React.FC<DateTimeStepProps> = ({
               <div className="w-1/2">
                 <h4 className="text-xl font-bold text-gray-800 mb-2">{plan.name}</h4>
                 <p className="text-gray-700 mb-4">{plan.description}</p>
-                <p className="font-semibold text-red-900 mb-4">Price: ₹{plan.price}</p>
+                <p className="font-semibold text-red-900 mb-4">Price: Starting from ₹{plan.price}</p>
               </div>
 
               {/* Right: Image */}

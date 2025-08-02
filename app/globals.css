@@ -29,6 +29,23 @@
   --color-sage-900: oklch(0.30 0.10 140.10);
 }
 
+
+@keyframes progressBar {
+  from {
+    width: 0%;
+  }
+  to {
+    width: 100%;
+  }
+}
+
+.animate-progress {
+  animation-name: progressBar;
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
+}
+
+
 /* @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;

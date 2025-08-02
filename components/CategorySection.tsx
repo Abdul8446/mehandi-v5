@@ -11,6 +11,7 @@ interface Category {
   name: string;
   image: string;
   description: string;
+  position?: 'right top' | 'bottom'; // Optional position for the overlay
 }
 
 const categories: Category[] = [
@@ -23,7 +24,7 @@ const categories: Category[] = [
   {
     id: 'ready-cones',
     name: 'Mehandi Cones',
-    image: 'https://i.pinimg.com/736x/3f/20/23/3f202389a43470f64dfa81cb34bb9531.jpg',
+    image: '/images/mehandi-cones-category.jpg',
     description: 'Pre-mixed cones for perfect application every time'
   },
   {
@@ -35,8 +36,9 @@ const categories: Category[] = [
   {
     id: 'stencils-practice',
     name: 'Stencils and Practice',
-    image: 'https://lifeline-foundation.org/wp-content/uploads/2024/11/DSC_2826-scaled.jpg',
-    description: 'Stencils, books, and tools to improve your mehndi skills'
+    image: '/images/stencils-and-practice-category.jpg',
+    description: 'Stencils, books, and tools to improve your mehndi skills',
+    position: 'right top',
   }
 ];
 
@@ -123,6 +125,7 @@ const CategorySection = () => {
                     alt={category.name}
                     width={1260}
                     height={750}
+                    style={{objectPosition: category.position === 'right top' ? 'right top' : 'center'}}
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110 group-active:scale-110"
                   />
                 </motion.div>

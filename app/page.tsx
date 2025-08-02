@@ -1,32 +1,32 @@
-
 // app/page.tsx
-
+'use client';
 import React from 'react';
 import Footer from '../components/Footer';
-// import AdBanner from '../components/AdBanner';
 import CategorySection from '../components/CategorySection';
 import FeaturedProducts from '../components/FeaturedProducts';
 import ArtistShowcase from '../components/ArtistShowcase';
 import TestimonialSection from '../components/TestimonialSection';
 import Hero3 from '@/components/Hero3';
-// import BlogSection from '../components/BlogSection';
+import VideoGallery from '@/components/Gallery';
 
 export default function HomePage() {
+  const scrollToGallery = () => {
+    const galleryElement = document.getElementById('video-gallery');
+    if (galleryElement) {
+      galleryElement.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
     <div className="min-h-screen flex flex-col">
-      {/* <Header /> */}
       <main className="flex-grow">
-      {/* <div className="bg-avocado-100 text-amber-600 p-4">Tailwind Test</div> */}
-        {/* <AdBanner /> */}
-        <Hero3/>
+        <Hero3 scrollToGallery={scrollToGallery} />
         <CategorySection />
         <FeaturedProducts />
         <ArtistShowcase />
+        <VideoGallery id="video-gallery" />
         <TestimonialSection />
-        {/* <BlogSection /> */}
       </main>
-      {/* <Footer /> */}
     </div>
   );
 }
-

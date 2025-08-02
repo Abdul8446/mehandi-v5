@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ShoppingBag, ArrowRight, Calendar } from 'react-feather';
-import { Award, Sparkles, Star, Users } from 'lucide-react';
+import { Award, ImageIcon, Sparkles, Star, Users } from 'lucide-react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 
@@ -12,7 +12,11 @@ interface StatItem {
   label: string;
 }
 
-const Hero3 = () => {
+interface Hero3Props {
+  scrollToGallery: () => void;
+}
+
+export default function Hero3({ scrollToGallery }: Hero3Props) {
   const router = useRouter();
   const [tapPosition, setTapPosition] = useState({ x: 0, y: 0 });
   const [activeRipple, setActiveRipple] = useState<string | null>(null);
@@ -199,6 +203,41 @@ const Hero3 = () => {
                 )}
               </AnimatePresence>
             </a>
+            <a
+              // href="/gallery"
+              onClick={scrollToGallery}
+              className="group relative cursor-pointer overflow-hidden bg-brown-700/80 text-white px-6 py-3 sm:px-8 sm:py-4 rounded-full font-semibold text-base sm:text-lg hover:shadow-2xl transition-all duration-300 hover:scale-105 active:scale-95 flex items-center space-x-2 border border-brown-500/50"
+            >
+              <ImageIcon size={20} />
+              <span>View Gallery</span>
+              <ArrowRight size={16} className="group-hover:translate-x-1 group-active:translate-x-1 transition-transform" />
+              <AnimatePresence>
+                {activeRipple === 'gallery-button' && (
+                  <motion.span
+                    className="absolute bg-white/20 rounded-full"
+                    initial={{
+                      scale: 0,
+                      opacity: 1,
+                      x: tapPosition.x,
+                      y: tapPosition.y,
+                      width: 10,
+                      height: 10,
+                    }}
+                    animate={{
+                      scale: 25,
+                      opacity: 0,
+                      x: tapPosition.x - 5,
+                      y: tapPosition.y - 5,
+                    }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.5, ease: 'easeInOut' }}
+                    style={{
+                      transformOrigin: 'center',
+                    }}
+                  />
+                )}
+              </AnimatePresence>
+            </a>
           </motion.div>
 
           {/* Stats */}
@@ -255,4 +294,14 @@ const Hero3 = () => {
   );
 };
 
-export default Hero3;
+
+
+
+
+
+
+
+
+
+
+

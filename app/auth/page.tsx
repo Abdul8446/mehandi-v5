@@ -440,8 +440,9 @@ export default function AuthPage() {
         <div className="max-w-md mx-auto bg-white rounded-lg shadow-sm overflow-hidden">
           <div className="p-6 sm:p-8">
             <div className="text-center mb-8">
-              <div className="w-16 h-16 bg-red-900 rounded-full flex items-center justify-center mx-auto mb-4">
-                <span className="text-white font-bold text-xl">MM</span>
+              <div className="relative w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 border-2 border-red-900">
+                {/* <span className="text-white font-bold text-xl">MM</span> */}
+                <img src="/images/logo-login.png" alt="logo" className='absolute inset-0 rounded-full object-cover'/>
               </div>
               <h1 className="text-2xl font-bold text-gray-800">
                 {showForgotPassword ? 'Reset Password' : isLogin ? 'Welcome Back' : 'Create an Account'}
