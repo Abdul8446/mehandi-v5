@@ -20,7 +20,7 @@ const About = () => {
               <div>
                 <h2 className="text-2xl font-serif text-brown-900 mb-6">Our Story</h2>
                 <p className="text-gray-700 mb-4">
-                  Founded in 2020, Mehandi Mansion began with a simple mission: to preserve and promote the ancient art of mehandi while making it accessible to everyone through quality products and professional services.
+                  Founded in 2012 (previous name LIWA henna art), Mehandi Mansion began with a simple mission: to preserve and promote the ancient art of mehandi while making it accessible to everyone through quality products and professional services.
                 </p>
                 <p className="text-gray-700">
                   {/* eslint-disable-next-line react/no-unescaped-entities */}
