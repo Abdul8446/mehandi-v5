@@ -28,12 +28,13 @@ const About = () => {
                 </p>
               </div>
               <div className="relative">
+                {/* https://images.pexels.com/photos/2486420/pexels-photo-2486420.jpeg */}
                 <Image
-                  src="https://images.pexels.com/photos/2486420/pexels-photo-2486420.jpeg"
+                  src="/images/about-us.jpg"
                   alt="Mehandi artist at work"
                   width={800}
-                  height={600}
-                  className="rounded-lg shadow-lg w-full h-auto"
+                  height={400}
+                  className="rounded-lg shadow-lg w-full h-150 object-cover"
                 />
               </div>
             </div>
