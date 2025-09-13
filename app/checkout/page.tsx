@@ -342,478 +342,478 @@ const CheckoutPage = () => {
   );
 
   // At the beginning of the return statement, add this condition
-  if (isPaymentProcessing) {
-    return <PaymentProcessing />;
-  } else {
-    return (
-      <ProtectedRoute>
-        <div className="bg-gray-50 min-h-screen py-8">
-          <div className="container mx-auto px-4">
-            <h1 className="text-2xl font-bold text-gray-800 mb-6">Checkout</h1>
-  
-            <div className="bg-white rounded-lg shadow-sm p-4 md:p-6 mb-6 md:mb-8">
-              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0 overflow-x-auto">  
-              {[1, 2, 3].map((step) => (
-              <React.Fragment key={step}>
-                  <div className="flex items-center flex-shrink-0">
-                    <div 
-                      className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
-                        currentStep >= step ? 'bg-red-900 text-white' : 'bg-gray-200 text-gray-600'
-                      }`}
-                    >
-                      {step}
-                    </div>
-                    <div 
-                      className={`ml-2 text-sm md:text-base ${
-                        currentStep >= step ? 'text-gray-900 font-medium' : 'text-gray-500'
-                      }`}
-                    >
-                      {step === 1 && 'Shipping'}
-                      {step === 2 && 'Payment'}
-                      {step === 3 && 'Review'}
-                    </div>
+  // if (isPaymentProcessing) {
+  //   return <PaymentProcessing />;
+  // } else {
+  // }
+  return (
+    <ProtectedRoute>
+      <div className="bg-gray-50 min-h-screen py-8">
+        <div className="container mx-auto px-4">
+          <h1 className="text-2xl font-bold text-gray-800 mb-6">Checkout</h1>
+
+          <div className="bg-white rounded-lg shadow-sm p-4 md:p-6 mb-6 md:mb-8">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0 overflow-x-auto">  
+            {[1, 2, 3].map((step) => (
+            <React.Fragment key={step}>
+                <div className="flex items-center flex-shrink-0">
+                  <div 
+                    className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
+                      currentStep >= step ? 'bg-red-900 text-white' : 'bg-gray-200 text-gray-600'
+                    }`}
+                  >
+                    {step}
                   </div>
-                  {step < 4 && (
-                    <div 
-                      className={`hidden sm:block flex-1 mx-2 md:mx-4 h-1 ${
-                        currentStep > step ? 'bg-red-900' : 'bg-gray-200'
-                      }`}
-                    ></div>
-                  )}
-                </React.Fragment>
-              ))}
-              </div>
-  
-              {/* Mobile progress indicator (alternative to the connecting lines) */}
-              <div className="sm:hidden mt-4 w-full bg-gray-200 rounded-full h-2">
-                <div 
-                  className="bg-red-900 h-2 rounded-full" 
-                  style={{ width: `${(currentStep - 1) * 33.33}%` }}
-                ></div>
-              </div>
+                  <div 
+                    className={`ml-2 text-sm md:text-base ${
+                      currentStep >= step ? 'text-gray-900 font-medium' : 'text-gray-500'
+                    }`}
+                  >
+                    {step === 1 && 'Shipping'}
+                    {step === 2 && 'Payment'}
+                    {step === 3 && 'Review'}
+                  </div>
+                </div>
+                {step < 4 && (
+                  <div 
+                    className={`hidden sm:block flex-1 mx-2 md:mx-4 h-1 ${
+                      currentStep > step ? 'bg-red-900' : 'bg-gray-200'
+                    }`}
+                  ></div>
+                )}
+              </React.Fragment>
+            ))}
             </div>
-            
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-              {/* Main Content */}
-              <div className="lg:col-span-2">
-                {/* Step 1: Shipping */}
-                {currentStep === 1 && (
-                  <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-                    <div className="p-6 border-b border-gray-200">
-                      <h2 className="text-lg font-semibold">Shipping Information</h2>
-                    </div>
-                    
-                    <div className="p-6">
-                      <form onSubmit={handleShippingSubmit}>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                              Full Name
-                            </label>
-                            <input 
-                              type="text" 
-                              name="name" 
-                              className="input-field w-full border border-gray-400 rounded-md p-2 focus:ring-2 focus:ring-brown-600 focus:outline-none focus:border-transparent"
-                              value={formData.name}
-                              onChange={handleInputChange}
-                              required
-                            />
-                          </div>
-                          
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                              Phone Number
-                            </label>
-                            <input 
-                              type="tel" 
-                              name="phone" 
-                              className="input-field w-full border border-gray-400 rounded-md p-2 focus:ring-2 focus:ring-brown-600 focus:outline-none focus:border-transparent"
-                              value={formData.phone}
-                              onChange={handleInputChange}
-                              required
-                            />
-                          </div>
-                          
-                          <div className="md:col-span-2">
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                              Email Address
-                            </label>
-                            <input 
-                              type="email" 
-                              name="email" 
-                              className="input-field w-full border border-gray-400 rounded-md p-2 focus:ring-2 focus:ring-brown-600 focus:outline-none focus:border-transparent"
-                              value={formData.email}
-                              onChange={handleInputChange}
-                              required
-                            />
-                          </div>
-                          
-                          <div className="md:col-span-2">
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                              Street Address
-                            </label>
-                            <input 
-                              type="text" 
-                              name="address" 
-                              className="input-field w-full border border-gray-400 rounded-md p-2 focus:ring-2 focus:ring-brown-600 focus:outline-none focus:border-transparent"
-                              value={formData.address}
-                              onChange={handleInputChange}
-                              required
-                            />
-                          </div>
-                          
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                              City
-                            </label>
-                            <input 
-                              type="text" 
-                              name="city" 
-                              className="input-field w-full border border-gray-400 rounded-md p-2 focus:ring-2 focus:ring-brown-600 focus:outline-none focus:border-transparent"
-                              value={formData.city}
-                              onChange={handleInputChange}
-                              required
-                            />
-                          </div>
-                          
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                              State
-                            </label>
-                            <select
-                              name="state"
-                              className="input-field w-full border border-gray-400 rounded-md p-2 focus:ring-2 focus:ring-brown-600 focus:outline-none focus:border-transparent"
-                              value={formData.state}
-                              onChange={handleInputChange}
-                              required
-                            >
-                              {indianStates.map((stateName) => (
-                                <option key={stateName} value={stateName}>
-                                  {stateName}
-                                </option>
-                              ))}
-                            </select>
-                          </div>
-                          
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                              Postal Code
-                            </label>
-                            <input 
-                              type="text" 
-                              name="postalCode" 
-                              className="input-field w-full border border-gray-400 rounded-md p-2 focus:ring-2 focus:ring-brown-600 focus:outline-none focus:border-transparent"
-                              value={formData.postalCode}
-                              onChange={handleInputChange}
-                              required
-                            />
-                          </div>
-                          
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                              Country
-                            </label>
-                            <select 
-                              name="country" 
-                              className="input-field w-full border border-gray-400 rounded-md p-2 focus:ring-2 focus:ring-brown-600 focus:outline-none focus:border-transparent"
-                              value={formData.country}
-                              onChange={handleInputChange}
-                              required
-                            >
-                              <option value="India">India</option>
-                            </select>
-                          </div>
-                        </div>
-                        
-                        <div className="mt-8 flex justify-between">
-                          <Button 
-                            type="button" 
-                            variant='outline'
-                            className="flex items-center text-red-900 hover:text-red-700"
-                            onClick={() => router.push('/cart')}
-                          >
-                            <ArrowLeft size={16} className="mr-1" />
-                            Back to Cart
-                          </Button>
-                          <Button 
-                            variant='primary'
-                            type="submit" 
-                            className="btn-primary"
-                          >
-                            Continue to Payment
-                          </Button>
-                        </div>
-                      </form>
-                    </div>
+
+            {/* Mobile progress indicator (alternative to the connecting lines) */}
+            <div className="sm:hidden mt-4 w-full bg-gray-200 rounded-full h-2">
+              <div 
+                className="bg-red-900 h-2 rounded-full" 
+                style={{ width: `${(currentStep - 1) * 33.33}%` }}
+              ></div>
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* Main Content */}
+            <div className="lg:col-span-2">
+              {/* Step 1: Shipping */}
+              {currentStep === 1 && (
+                <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+                  <div className="p-6 border-b border-gray-200">
+                    <h2 className="text-lg font-semibold">Shipping Information</h2>
                   </div>
-                )}
-                
-                {/* Step 2: Payment - Only PhonePe shown */}
-                {currentStep === 2 && (
-                  <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-                    <div className="p-6 border-b border-gray-200">
-                      <h2 className="text-lg font-semibold">Payment Method</h2>
-                    </div>
-                    
-                    <div className="p-6">
-                      <form onSubmit={handlePaymentSubmit}>
-                        <div className="space-y-4">
-                          <div className="border border-gray-200 rounded-md p-4 bg-gray-50">
-                            <div className="flex items-center">
-                              <input 
-                                type="radio" 
-                                name="paymentMethod" 
-                                value="phonepe" 
-                                checked
-                                className="h-4 w-4 text-red-900 focus:ring-red-500"
-                                readOnly
-                              />
-                              <div className="ml-3">
-                                <span className="block text-sm font-medium text-gray-700">PhonePe Payment</span>
-                                <span className="block text-xs text-gray-500">Pay via UPI, Credit/Debit Cards, Net Banking</span>
-                              </div>
-                              <div className="ml-auto">
-                                <CreditCard size={24} className="text-gray-400" />
-                              </div>
-                            </div>
-                          </div>
-                          
-                          <div className="bg-blue-50 p-4 rounded-md border border-blue-100">
-                            <p className="text-sm text-blue-800">
-                              You'll be securely redirected to PhonePe to complete your payment.
-                              After successful payment, you'll be returned to our site.
-                            </p>
-                          </div>
-                        </div>
-                        
-                        <div className="mt-8 flex justify-between">
-                          <Button
-                            variant='outline' 
-                            type="button" 
-                            className="flex items-center text-red-900 hover:text-red-700"
-                            onClick={() => setCurrentStep(1)}
-                          >
-                            <ArrowLeft size={16} className="mr-1" />
-                            Back to Shipping
-                          </Button>
-                          <Button
-                            variant='primary' 
-                            type="submit" 
-                            className="btn-primary"
-                          >
-                            Continue to Review
-                          </Button>
-                        </div>
-                      </form>
-                    </div>
-                  </div>
-                )}
-                
-                {/* Step 3: Review */}
-                {currentStep === 3 && (
-                  <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-                    <div className="p-6 border-b border-gray-200">
-                      <h2 className="text-lg font-semibold">Review Your Order</h2>
-                    </div>
-                    
-                    <div className="p-6">
-                      <div className="mb-6">
-                        <h3 className="text-md font-medium mb-3">Shipping Information</h3>
-                        <div className="bg-gray-50 p-4 rounded-md">
-                          <p className="mb-1"><span className="font-medium">Name:</span> {formData.name}</p>
-                          <p className="mb-1"><span className="font-medium">Email:</span> {formData.email}</p>
-                          <p className="mb-1"><span className="font-medium">Phone:</span> {formData.phone}</p>
-                          <p className="mb-1">
-                            <span className="font-medium">Address:</span> {formData.address}, {formData.city}, {formData.state}, {formData.postalCode}, {formData.country}
-                          </p>
-                        </div>
-                      </div>
-                      
-                      <div className="mb-6">
-                        <h3 className="text-md font-medium mb-3">Payment Method</h3>
-                        <div className="bg-gray-50 p-4 rounded-md">
-                          <p>PhonePe Payment</p>
-                          <p className="text-sm text-gray-500 mt-1">You'll complete payment on PhonePe's secure platform</p>
-                        </div>
-                      </div>
-                      
-                      <div className="mb-6">
-                        <h3 className="text-md font-medium mb-3">Order Items</h3>
-                        <div className="bg-gray-50 p-4 rounded-md">
-                          <div className="divide-y divide-gray-200">
-                            {items.map(item => (
-                              <div key={item._id} className="py-3 flex items-center">
-                                <img 
-                                  src={item.image} 
-                                  alt={item.name} 
-                                  className="w-16 h-16 object-cover rounded-md mr-4"
-                                />
-                                <div className="flex-1">
-                                  <p className="font-medium">{item.name}</p>
-                                  <p className="text-sm text-gray-600">₹{item.price} × {item.quantity}</p>
-                                </div>
-                                <div className="font-semibold">
-                                  ₹{(item.price * item.quantity).toFixed(2)}
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-                      
-                      <div className="mb-8">
-                        <h3 className="text-md font-medium mb-3">Order Summary</h3>
-                        <div className="bg-gray-50 p-4 rounded-md">
-                          <div className="space-y-2">
-                            <div className="flex justify-between">
-                              <span className="text-gray-600">Subtotal</span>
-                              <span>₹{totalPrice.toFixed(2)}</span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span className="text-gray-600">Shipping</span>
-                              <span>{shippingCost === 0 ? 'Free' : `₹${shippingCost.toFixed(2)}`}</span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span className="text-gray-600">Tax</span>
-                              <span>Included</span>
-                            </div>
-                            <div className="border-t border-gray-200 pt-2 mt-2">
-                              <div className="flex justify-between font-semibold">
-                                <span>Total</span>
-                                <span className="text-red-900">₹{grandTotal.toFixed(2)}</span>
-                              </div>
-                            </div>
-                          </div>   
-                        </div>
-                      </div>
-  
-                      {/* Shipping Conditions Acceptance */}
-                      <div className="mb-6">
-                        <div className="flex items-start">
-                          <input
-                            type="checkbox"
-                            id="shippingConditions"
-                            checked={hasAcceptedShippingConditions}
-                            onChange={(e) => setHasAcceptedShippingConditions(e.target.checked)}
-                            className="mt-1 mr-2"
-                          />
-                          <label htmlFor="shippingConditions" className="text-sm text-gray-700">
-                            I accept the shipping and return conditions
+                  
+                  <div className="p-6">
+                    <form onSubmit={handleShippingSubmit}>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Full Name
                           </label>
-                          <button
-                            type="button"
-                            onClick={() => setShowShippingConditions(true)}
-                            className="ml-2 text-red-900 flex items-center text-sm"
-                            title="See shipping conditions"
-                          >
-                            <Info size={16} className="mr-1" />
-                            See conditions
-                          </button>
+                          <input 
+                            type="text" 
+                            name="name" 
+                            className="input-field w-full border border-gray-400 rounded-md p-2 focus:ring-2 focus:ring-brown-600 focus:outline-none focus:border-transparent"
+                            value={formData.name}
+                            onChange={handleInputChange}
+                            required
+                          />
                         </div>
-                        {!hasAcceptedShippingConditions && (
-                          <p className="text-sm text-red-600 mt-1 flex items-center">
-                            <AlertCircle size={14} className="mr-1" />
-                            You must accept the shipping conditions to proceed
-                          </p>
-                        )}
+                        
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Phone Number
+                          </label>
+                          <input 
+                            type="tel" 
+                            name="phone" 
+                            className="input-field w-full border border-gray-400 rounded-md p-2 focus:ring-2 focus:ring-brown-600 focus:outline-none focus:border-transparent"
+                            value={formData.phone}
+                            onChange={handleInputChange}
+                            required
+                          />
+                        </div>
+                        
+                        <div className="md:col-span-2">
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Email Address
+                          </label>
+                          <input 
+                            type="email" 
+                            name="email" 
+                            className="input-field w-full border border-gray-400 rounded-md p-2 focus:ring-2 focus:ring-brown-600 focus:outline-none focus:border-transparent"
+                            value={formData.email}
+                            onChange={handleInputChange}
+                            required
+                          />
+                        </div>
+                        
+                        <div className="md:col-span-2">
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Street Address
+                          </label>
+                          <input 
+                            type="text" 
+                            name="address" 
+                            className="input-field w-full border border-gray-400 rounded-md p-2 focus:ring-2 focus:ring-brown-600 focus:outline-none focus:border-transparent"
+                            value={formData.address}
+                            onChange={handleInputChange}
+                            required
+                          />
+                        </div>
+                        
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            City
+                          </label>
+                          <input 
+                            type="text" 
+                            name="city" 
+                            className="input-field w-full border border-gray-400 rounded-md p-2 focus:ring-2 focus:ring-brown-600 focus:outline-none focus:border-transparent"
+                            value={formData.city}
+                            onChange={handleInputChange}
+                            required
+                          />
+                        </div>
+                        
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            State
+                          </label>
+                          <select
+                            name="state"
+                            className="input-field w-full border border-gray-400 rounded-md p-2 focus:ring-2 focus:ring-brown-600 focus:outline-none focus:border-transparent"
+                            value={formData.state}
+                            onChange={handleInputChange}
+                            required
+                          >
+                            {indianStates.map((stateName) => (
+                              <option key={stateName} value={stateName}>
+                                {stateName}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                        
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Postal Code
+                          </label>
+                          <input 
+                            type="text" 
+                            name="postalCode" 
+                            className="input-field w-full border border-gray-400 rounded-md p-2 focus:ring-2 focus:ring-brown-600 focus:outline-none focus:border-transparent"
+                            value={formData.postalCode}
+                            onChange={handleInputChange}
+                            required
+                          />
+                        </div>
+                        
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Country
+                          </label>
+                          <select 
+                            name="country" 
+                            className="input-field w-full border border-gray-400 rounded-md p-2 focus:ring-2 focus:ring-brown-600 focus:outline-none focus:border-transparent"
+                            value={formData.country}
+                            onChange={handleInputChange}
+                            required
+                          >
+                            <option value="India">India</option>
+                          </select>
+                        </div>
                       </div>
                       
-                      <div className="flex justify-between">
+                      <div className="mt-8 flex justify-between">
                         <Button 
-                          variant='outline'
                           type="button" 
+                          variant='outline'
                           className="flex items-center text-red-900 hover:text-red-700"
-                          onClick={() => setCurrentStep(2)}
+                          onClick={() => router.push('/cart')}
                         >
                           <ArrowLeft size={16} className="mr-1" />
-                          Back to Payment
+                          Back to Cart
                         </Button>
                         <Button 
                           variant='primary'
-                          type="button" 
+                          type="submit" 
                           className="btn-primary"
-                          onClick={handlePlaceOrder}
-                          disabled={isProcessing || !hasAcceptedShippingConditions}
                         >
-                          {isProcessing ? 'Processing...' : 'Pay with PhonePe'}
+                          Continue to Payment
                         </Button>
                       </div>
-                    </div>
+                    </form>
                   </div>
-                )}
-              </div>
+                </div>
+              )}
               
-              {/* Order Summary */}
-              <div className="lg:col-span-1">
-                <div className="bg-white rounded-lg shadow-sm overflow-hidden sticky top-24">
-                  <div className="p-4 border-b border-gray-200">
-                    <h3 className="text-lg font-semibold">Order Summary</h3>
+              {/* Step 2: Payment - Only PhonePe shown */}
+              {currentStep === 2 && (
+                <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+                  <div className="p-6 border-b border-gray-200">
+                    <h2 className="text-lg font-semibold">Payment Method</h2>
                   </div>
                   
-                  <div className="p-4">
-                    <div className="max-h-64 overflow-y-auto mb-4">
-                      {items.map(item => (
-                        <div key={item._id} className="flex items-center py-2 border-b border-gray-100">
-                          <img 
-                            src={item.image} 
-                            alt={item.name} 
-                            className="w-12 h-12 object-cover rounded-md mr-3"
-                          />
-                          <div className="flex-1">
-                            <p className="text-sm font-medium">{item.name}</p>
-                            <p className="text-xs text-gray-500">Qty: {item.quantity}</p>
-                          </div>
-                          <div className="text-sm font-semibold">
-                            ₹{(item.price * item.quantity).toFixed(2)}
+                  <div className="p-6">
+                    <form onSubmit={handlePaymentSubmit}>
+                      <div className="space-y-4">
+                        <div className="border border-gray-200 rounded-md p-4 bg-gray-50">
+                          <div className="flex items-center">
+                            <input 
+                              type="radio" 
+                              name="paymentMethod" 
+                              value="phonepe" 
+                              checked
+                              className="h-4 w-4 text-red-900 focus:ring-red-500"
+                              readOnly
+                            />
+                            <div className="ml-3">
+                              <span className="block text-sm font-medium text-gray-700">PhonePe Payment</span>
+                              <span className="block text-xs text-gray-500">Pay via UPI, Credit/Debit Cards, Net Banking</span>
+                            </div>
+                            <div className="ml-auto">
+                              <CreditCard size={24} className="text-gray-400" />
+                            </div>
                           </div>
                         </div>
-                      ))}
+                        
+                        <div className="bg-blue-50 p-4 rounded-md border border-blue-100">
+                          <p className="text-sm text-blue-800">
+                            You'll be securely redirected to PhonePe to complete your payment.
+                            After successful payment, you'll be returned to our site.
+                          </p>
+                        </div>
+                      </div>
+                      
+                      <div className="mt-8 flex justify-between">
+                        <Button
+                          variant='outline' 
+                          type="button" 
+                          className="flex items-center text-red-900 hover:text-red-700"
+                          onClick={() => setCurrentStep(1)}
+                        >
+                          <ArrowLeft size={16} className="mr-1" />
+                          Back to Shipping
+                        </Button>
+                        <Button
+                          variant='primary' 
+                          type="submit" 
+                          className="btn-primary"
+                        >
+                          Continue to Review
+                        </Button>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+              )}
+              
+              {/* Step 3: Review */}
+              {currentStep === 3 && (
+                <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+                  <div className="p-6 border-b border-gray-200">
+                    <h2 className="text-lg font-semibold">Review Your Order</h2>
+                  </div>
+                  
+                  <div className="p-6">
+                    <div className="mb-6">
+                      <h3 className="text-md font-medium mb-3">Shipping Information</h3>
+                      <div className="bg-gray-50 p-4 rounded-md">
+                        <p className="mb-1"><span className="font-medium">Name:</span> {formData.name}</p>
+                        <p className="mb-1"><span className="font-medium">Email:</span> {formData.email}</p>
+                        <p className="mb-1"><span className="font-medium">Phone:</span> {formData.phone}</p>
+                        <p className="mb-1">
+                          <span className="font-medium">Address:</span> {formData.address}, {formData.city}, {formData.state}, {formData.postalCode}, {formData.country}
+                        </p>
+                      </div>
                     </div>
                     
-                    <div className="space-y-2">
-                      <div className="flex justify-between text-sm">
-                        <span className="text-gray-600">Subtotal</span>
-                        <span>₹{totalPrice.toFixed(2)}</span>
-                      </div>
-                      <div className="flex justify-between text-sm">
-                        <span className="text-gray-600">Shipping</span>
-                        <span>{shippingCost === 0 ? 'Free' : `₹${shippingCost.toFixed(2)}`}</span>
-                      </div>
-                      <div className="flex justify-between text-sm">
-                        <span className="text-gray-600">Tax</span>
-                        <span>Included</span>
+                    <div className="mb-6">
+                      <h3 className="text-md font-medium mb-3">Payment Method</h3>
+                      <div className="bg-gray-50 p-4 rounded-md">
+                        <p>PhonePe Payment</p>
+                        <p className="text-sm text-gray-500 mt-1">You'll complete payment on PhonePe's secure platform</p>
                       </div>
                     </div>
                     
-                    <div className="border-t border-gray-200 mt-4 pt-4">
-                      <div className="flex justify-between font-semibold">
-                        <span>Total</span>
-                        <span className="text-red-900">₹{grandTotal.toFixed(2)}</span>
+                    <div className="mb-6">
+                      <h3 className="text-md font-medium mb-3">Order Items</h3>
+                      <div className="bg-gray-50 p-4 rounded-md">
+                        <div className="divide-y divide-gray-200">
+                          {items.map(item => (
+                            <div key={item._id} className="py-3 flex items-center">
+                              <img 
+                                src={item.image} 
+                                alt={item.name} 
+                                className="w-16 h-16 object-cover rounded-md mr-4"
+                              />
+                              <div className="flex-1">
+                                <p className="font-medium">{item.name}</p>
+                                <p className="text-sm text-gray-600">₹{item.price} × {item.quantity}</p>
+                              </div>
+                              <div className="font-semibold">
+                                ₹{(item.price * item.quantity).toFixed(2)}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
                       </div>
                     </div>
                     
-                    <div className="mt-6 space-y-4">
-                      <div className="flex items-center text-sm text-gray-600">
-                        <Truck size={16} className="mr-2 text-green-600" />
-                        <span>{shippingCost === 0 ? 'Free shipping on orders above ₹999' : `Standard shipping: ₹${shippingCost}`}</span>
+                    <div className="mb-8">
+                      <h3 className="text-md font-medium mb-3">Order Summary</h3>
+                      <div className="bg-gray-50 p-4 rounded-md">
+                        <div className="space-y-2">
+                          <div className="flex justify-between">
+                            <span className="text-gray-600">Subtotal</span>
+                            <span>₹{totalPrice.toFixed(2)}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-gray-600">Shipping</span>
+                            <span>{shippingCost === 0 ? 'Free' : `₹${shippingCost.toFixed(2)}`}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-gray-600">Tax</span>
+                            <span>Included</span>
+                          </div>
+                          <div className="border-t border-gray-200 pt-2 mt-2">
+                            <div className="flex justify-between font-semibold">
+                              <span>Total</span>
+                              <span className="text-red-900">₹{grandTotal.toFixed(2)}</span>
+                            </div>
+                          </div>
+                        </div>   
                       </div>
-                      <div className="flex items-center text-sm text-gray-600">
-                        <ShieldCheck size={16} className="mr-2 text-green-600" />
-                        <span>Secure payment processing</span>
+                    </div>
+
+                    {/* Shipping Conditions Acceptance */}
+                    <div className="mb-6">
+                      <div className="flex items-start">
+                        <input
+                          type="checkbox"
+                          id="shippingConditions"
+                          checked={hasAcceptedShippingConditions}
+                          onChange={(e) => setHasAcceptedShippingConditions(e.target.checked)}
+                          className="mt-1 mr-2"
+                        />
+                        <label htmlFor="shippingConditions" className="text-sm text-gray-700">
+                          I accept the shipping and return conditions
+                        </label>
+                        <button
+                          type="button"
+                          onClick={() => setShowShippingConditions(true)}
+                          className="ml-2 text-red-900 flex items-center text-sm"
+                          title="See shipping conditions"
+                        >
+                          <Info size={16} className="mr-1" />
+                          See conditions
+                        </button>
                       </div>
+                      {!hasAcceptedShippingConditions && (
+                        <p className="text-sm text-red-600 mt-1 flex items-center">
+                          <AlertCircle size={14} className="mr-1" />
+                          You must accept the shipping conditions to proceed
+                        </p>
+                      )}
+                    </div>
+                    
+                    <div className="flex justify-between">
+                      <Button 
+                        variant='outline'
+                        type="button" 
+                        className="flex items-center text-red-900 hover:text-red-700"
+                        onClick={() => setCurrentStep(2)}
+                      >
+                        <ArrowLeft size={16} className="mr-1" />
+                        Back to Payment
+                      </Button>
+                      <Button 
+                        variant='primary'
+                        type="button" 
+                        className="btn-primary"
+                        onClick={handlePlaceOrder}
+                        disabled={isProcessing || !hasAcceptedShippingConditions}
+                      >
+                        {isProcessing ? 'Processing...' : 'Pay with PhonePe'}
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+            
+            {/* Order Summary */}
+            <div className="lg:col-span-1">
+              <div className="bg-white rounded-lg shadow-sm overflow-hidden sticky top-24">
+                <div className="p-4 border-b border-gray-200">
+                  <h3 className="text-lg font-semibold">Order Summary</h3>
+                </div>
+                
+                <div className="p-4">
+                  <div className="max-h-64 overflow-y-auto mb-4">
+                    {items.map(item => (
+                      <div key={item._id} className="flex items-center py-2 border-b border-gray-100">
+                        <img 
+                          src={item.image} 
+                          alt={item.name} 
+                          className="w-12 h-12 object-cover rounded-md mr-3"
+                        />
+                        <div className="flex-1">
+                          <p className="text-sm font-medium">{item.name}</p>
+                          <p className="text-xs text-gray-500">Qty: {item.quantity}</p>
+                        </div>
+                        <div className="text-sm font-semibold">
+                          ₹{(item.price * item.quantity).toFixed(2)}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-600">Subtotal</span>
+                      <span>₹{totalPrice.toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-600">Shipping</span>
+                      <span>{shippingCost === 0 ? 'Free' : `₹${shippingCost.toFixed(2)}`}</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-600">Tax</span>
+                      <span>Included</span>
+                    </div>
+                  </div>
+                  
+                  <div className="border-t border-gray-200 mt-4 pt-4">
+                    <div className="flex justify-between font-semibold">
+                      <span>Total</span>
+                      <span className="text-red-900">₹{grandTotal.toFixed(2)}</span>
+                    </div>
+                  </div>
+                  
+                  <div className="mt-6 space-y-4">
+                    <div className="flex items-center text-sm text-gray-600">
+                      <Truck size={16} className="mr-2 text-green-600" />
+                      <span>{shippingCost === 0 ? 'Free shipping on orders above ₹999' : `Standard shipping: ₹${shippingCost}`}</span>
+                    </div>
+                    <div className="flex items-center text-sm text-gray-600">
+                      <ShieldCheck size={16} className="mr-2 text-green-600" />
+                      <span>Secure payment processing</span>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
-          
-          {/* Shipping Conditions Dialog */}
-          {showShippingConditions && <ShippingConditionsDialog />}
         </div>
-      </ProtectedRoute>
-    );
-  }
+        
+        {/* Shipping Conditions Dialog */}
+        {showShippingConditions && <ShippingConditionsDialog />}
+      </div>
+    </ProtectedRoute>
+  );
 };
 
 export default CheckoutPage;
