@@ -146,9 +146,9 @@ const CheckoutPage = () => {
       
       if (data.data.success && data.data.redirectUrl) {
         statusUrlRef.current = data.data.checkStatusUrl;
-        router.push(data.data.redirectUrl);
+        // router.push(data.data.redirectUrl);
         // Instead of router.push, use window.location to fully navigate away
-        // window.location.href = data.data.redirectUrl;
+        window.location.href = data.data.redirectUrl;
       } else {
         throw new Error(data.message || 'Payment initiation failed');
       }
