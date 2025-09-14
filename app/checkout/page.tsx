@@ -7,7 +7,6 @@ import { useAuth } from '@/contexts/AuthContext';
 import toast from 'react-hot-toast';
 import Button from '@/components/ui/Button';
 import ProtectedRoute from '@/components/ProtectedRoute';
-import PaymentProcessing from '@/components/payment/PaymentProcessing';
 
 const indianStates = [
   "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh",
@@ -20,18 +19,18 @@ const indianStates = [
   "Jammu and Kashmir", "Ladakh", "Lakshadweep", "Puducherry"
 ];
 
-declare global {
-  interface Window {
-    PhonePeCheckout?: {
-      transact: (options: {
-        tokenUrl: string;
-        callback: (response: string) => void;
-        type: string;
-      }) => void;
-      closePage: () => void;
-    };
-  }
-}
+// declare global {
+//   interface Window {
+//     PhonePeCheckout?: {
+//       transact: (options: {
+//         tokenUrl: string;
+//         callback: (response: string) => void;
+//         type: string;
+//       }) => void;
+//       closePage: () => void;
+//     };
+//   }
+// }
 
 const CheckoutPage = () => {
   const { items, totalPrice, shippingCost, grandTotal, clearCart, isMinimumOrderMet, shippingState, setShippingState } = useCart();
@@ -41,8 +40,6 @@ const CheckoutPage = () => {
   const orderIdRef = useRef<string | null>(null);
   const [hasAcceptedShippingConditions, setHasAcceptedShippingConditions] = useState(false);
   const [showShippingConditions, setShowShippingConditions] = useState(false);
-  // Inside the CheckoutPage component, add state to track payment status
-  const [isPaymentProcessing, setIsPaymentProcessing] = useState(false);
 
   // Ensure minimum order amount is met
   useEffect(() => {
@@ -75,19 +72,19 @@ const CheckoutPage = () => {
   const [isPhonePeScriptLoaded, setIsPhonePeScriptLoaded] = useState(false);
 
   // Load PhonePe script
-  useEffect(() => {
-    const script = document.createElement('script');
-    script.src = process.env.NODE_ENV === 'production' 
-      ? 'https://mercury.phonepe.com/web/bundle/checkout.js' 
-      : 'https://mercury-stg.phonepe.com/web/bundle/checkout.js';
-    script.async = true;
-    script.onload = () => setIsPhonePeScriptLoaded(true);
-    document.body.appendChild(script);
+  // useEffect(() => {
+  //   const script = document.createElement('script');
+  //   script.src = process.env.NODE_ENV === 'production' 
+  //     ? 'https://mercury.phonepe.com/web/bundle/checkout.js' 
+  //     : 'https://mercury-stg.phonepe.com/web/bundle/checkout.js';
+  //   script.async = true;
+  //   script.onload = () => setIsPhonePeScriptLoaded(true);
+  //   document.body.appendChild(script);
 
-    return () => {
-      document.body.removeChild(script);
-    };
-  }, []);
+  //   return () => {
+  //     document.body.removeChild(script);
+  //   };
+  // }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -115,7 +112,6 @@ const CheckoutPage = () => {
   const initiatePhonePePayment = async (orderId: string) => {
     try {
       setIsProcessing(true);
-      setIsPaymentProcessing(true); // Add this line
       toast.loading('Preparing PhonePe payment...');
       
       const response = await fetch('/api/payment/create', {
@@ -147,8 +143,6 @@ const CheckoutPage = () => {
       if (data.data.success && data.data.redirectUrl) {
         statusUrlRef.current = data.data.checkStatusUrl;
         router.push(data.data.redirectUrl);
-        // Instead of router.push, use window.location to fully navigate away
-        // window.location.href = data.data.redirectUrl;
       } else {
         throw new Error(data.message || 'Payment initiation failed');
       }
@@ -157,7 +151,6 @@ const CheckoutPage = () => {
       toast.error(error.message || 'Failed to initiate payment');
       console.error('Payment error:', error);
       setIsProcessing(false);
-      setIsPaymentProcessing(false); // Add this line
     }
   };
   
@@ -341,11 +334,6 @@ const CheckoutPage = () => {
     </div>
   );
 
-  // At the beginning of the return statement, add this condition
-  // if (isPaymentProcessing) {
-  //   return <PaymentProcessing />;
-  // } else {
-  // }
   return (
     <ProtectedRoute>
       <div className="bg-gray-50 min-h-screen py-8">
