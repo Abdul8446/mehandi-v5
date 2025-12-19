@@ -1,12 +1,12 @@
 // app/api/payment/create/route.ts
 import { NextResponse } from "next/server";
 import { getClient, randomUUID } from "@/lib/pg-client";
-import { StandardCheckoutPayRequest,UpiIntentPayRequestBuilder, UpiQrPaymentV2Instrument } from "pg-sdk-node";
+import { StandardCheckoutPayRequest, UpiIntentPayRequestBuilder, UpiQrPaymentV2Instrument } from "pg-sdk-node";
 import { CreateOrderRequest, CreateOrderResponse, ErrorResponse } from "@/types/payment";
 
 export async function POST(request: Request) {
   try {
-    const { amount, orderId } = (await request.json()) as CreateOrderRequest;
+    const { amount, orderId, userId, mobileNumber } = (await request.json()) as CreateOrderRequest;
 
     if (!amount) {
       return NextResponse.json<ErrorResponse>(
@@ -19,13 +19,18 @@ export async function POST(request: Request) {
     const merchantOrderId = orderId;
     const redirectUrl = process.env.PHONEPE_ENV === "UAT" ? `http://localhost:3000/payment-verification?merchantOrderId=${merchantOrderId}` : `${process.env.NEXT_PUBLIC_BASE_URL}/payment-verification?merchantOrderId=${merchantOrderId}`;
 
-    const requestBody = StandardCheckoutPayRequest.builder()
+    const builder = StandardCheckoutPayRequest.builder()
       .merchantOrderId(merchantOrderId)
-      .amount(amount*100) // Convert to paise
-      .redirectUrl(redirectUrl)
-      .build();
+      .amount(amount * 100) // Convert to paise
+      .redirectUrl(redirectUrl);
 
-    console.log("Initiating payment with request body:", requestBody);  
+    const requestBody = builder.build();
+    // Workaround for missing fields in SDK typing
+    (requestBody as any).merchantUserId = userId || 'MUID-' + randomUUID();
+    (requestBody as any).callbackUrl = redirectUrl;
+    (requestBody as any).mobileNumber = mobileNumber;
+
+    console.log("Initiating payment with request body:", requestBody);
 
     const response = await client.pay(requestBody);
 
@@ -33,11 +38,11 @@ export async function POST(request: Request) {
 
     return NextResponse.json<CreateOrderResponse>({
       data: {
-          success: true,
-          orderId: response.orderId,
-          redirectUrl: response.redirectUrl,
-          callbackUrl: redirectUrl,
-          checkStatusUrl: process.env.PHONEPE_ENV === "UAT" ? `http://localhost:3000/payment-verification?merchantOrderId=${merchantOrderId}` : `${process.env.NEXT_PUBLIC_BASE_URL}/payment-verification?merchantOrderId=${merchantOrderId}`,
+        success: true,
+        orderId: response.orderId,
+        redirectUrl: response.redirectUrl,
+        callbackUrl: redirectUrl,
+        checkStatusUrl: process.env.PHONEPE_ENV === "UAT" ? `http://localhost:3000/payment-verification?merchantOrderId=${merchantOrderId}` : `${process.env.NEXT_PUBLIC_BASE_URL}/payment-verification?merchantOrderId=${merchantOrderId}`,
       },
     });
   } catch (error: any) {

@@ -54,7 +54,7 @@ const CheckoutPage = () => {
       router.push('/');
     }
   }, [isMinimumOrderMet, router]);
-  
+
   const [formData, setFormData] = useState({
     name: user?.name || '',
     email: '',
@@ -66,7 +66,7 @@ const CheckoutPage = () => {
     country: 'India',
     paymentMethod: 'phonepe' // Only PhonePe payment method available
   });
-  
+
   const [currentStep, setCurrentStep] = useState(1); // 1: Shipping, 2: Payment, 3: Review
   const [isProcessing, setIsProcessing] = useState(false);
   const [isPhonePeScriptLoaded, setIsPhonePeScriptLoaded] = useState(false);
@@ -113,7 +113,7 @@ const CheckoutPage = () => {
     try {
       setIsProcessing(true);
       toast.loading('Preparing PhonePe payment...');
-      
+
       const response = await fetch('/api/payment/create', {
         method: 'POST',
         headers: {
@@ -122,7 +122,8 @@ const CheckoutPage = () => {
         body: JSON.stringify({
           amount: grandTotal,
           orderId: orderId,
-          userId: user?.id
+          userId: user?.id || 'guest',
+          mobileNumber: formData.phone
         }),
       });
 
@@ -132,14 +133,14 @@ const CheckoutPage = () => {
 
       if (!response.ok) {
         throw new Error(
-           data.error || // From your backend's error response
-            data.message || // Alternative error field
-        'Failed to initiate PhonePe payment'
+          data.error || // From your backend's error response
+          data.message || // Alternative error field
+          'Failed to initiate PhonePe payment'
         );
       }
-      
+
       toast.dismiss();
-      
+
       if (data.data.success && data.data.redirectUrl) {
         statusUrlRef.current = data.data.checkStatusUrl;
         router.push(data.data.redirectUrl);
@@ -153,45 +154,45 @@ const CheckoutPage = () => {
       setIsProcessing(false);
     }
   };
-  
-//   const phonePeCallback = async (response: string) => {
-//     if (response === 'USER_CANCEL') {
-//       toast.error('Payment was cancelled by user');
-//       setIsProcessing(false);
-//     } else if (response === 'CONCLUDED') {
-//       try {
-//         const urlToUse = statusUrlRef.current;
-//         const orderId = orderIdRef.current;
-//         console.log(urlToUse, 'Status URL for verification');
-        
-//         if (!urlToUse) {
-//           throw new Error('Payment verification URL not available');
-//         }
 
-//         toast.loading('Payment completed! Verifying...');
-//         const statusResponse = await fetch(urlToUse);
-        
-//         if (!statusResponse.ok) {
-//           throw new Error('Failed to verify payment status');
-//         }
+  //   const phonePeCallback = async (response: string) => {
+  //     if (response === 'USER_CANCEL') {
+  //       toast.error('Payment was cancelled by user');
+  //       setIsProcessing(false);
+  //     } else if (response === 'CONCLUDED') {
+  //       try {
+  //         const urlToUse = statusUrlRef.current;
+  //         const orderId = orderIdRef.current;
+  //         console.log(urlToUse, 'Status URL for verification');
 
-//         const statusData = await statusResponse.json();
-//         toast.dismiss();
+  //         if (!urlToUse) {
+  //           throw new Error('Payment verification URL not available');
+  //         }
 
-//         if (statusData.success && statusData.data.status === 'SUCCESS') {
-//           toast.success('Payment successful! Your order is confirmed.');
-//           router.push(`/order-confirmation/${orderId}`);
-//         } else {
-//           toast.error('Payment verification failed. Please contact support.');
-//           setIsProcessing(false);
-//         }
-//       } catch (error: any) {
-//         toast.dismiss();
-//         toast.error(error.message || 'Error verifying payment');
-//         setIsProcessing(false);
-//       }
-//     }
-//  };
+  //         toast.loading('Payment completed! Verifying...');
+  //         const statusResponse = await fetch(urlToUse);
+
+  //         if (!statusResponse.ok) {
+  //           throw new Error('Failed to verify payment status');
+  //         }
+
+  //         const statusData = await statusResponse.json();
+  //         toast.dismiss();
+
+  //         if (statusData.success && statusData.data.status === 'SUCCESS') {
+  //           toast.success('Payment successful! Your order is confirmed.');
+  //           router.push(`/order-confirmation/${orderId}`);
+  //         } else {
+  //           toast.error('Payment verification failed. Please contact support.');
+  //           setIsProcessing(false);
+  //         }
+  //       } catch (error: any) {
+  //         toast.dismiss();
+  //         toast.error(error.message || 'Error verifying payment');
+  //         setIsProcessing(false);
+  //       }
+  //     }
+  //  };
 
   const handlePlaceOrder = async () => {
     if (!isAuthenticated) {
@@ -199,16 +200,16 @@ const CheckoutPage = () => {
       router.push('/auth');
       return;
     }
-    
+
     if (!hasAcceptedShippingConditions) {
       toast.error('Please accept the shipping conditions to proceed');
       return;
     }
-    
+
     try {
       // Show loading state
       const loadingToast = toast.loading('Creating your order...');
-     
+
       const orderData = {
         userId: user?.id,
         customer: {
@@ -250,15 +251,15 @@ const CheckoutPage = () => {
       }
 
       const createdOrder = await orderResponse.json();
-      
+
       orderIdRef.current = createdOrder.orderId;
 
       // Dismiss loading toast
       toast.dismiss(loadingToast);
-      
+
       // Initiate PhonePe payment
       await initiatePhonePePayment(createdOrder.orderId);
-      
+
     } catch (error: any) {
       toast.error(error.message || 'Failed to place order');
       console.error('Order error:', error);
@@ -281,7 +282,7 @@ const CheckoutPage = () => {
                 Orders are dispatched on <strong>Monday, Wednesday, and Saturday</strong> (excluding second Saturdays of the month).
               </p>
             </div>
-            
+
             <div>
               <h3 className="font-medium text-brown-900 mb-2">Domestic Shipping</h3>
               <ul className="space-y-2 text-gray-700">
@@ -295,7 +296,7 @@ const CheckoutPage = () => {
                 </li>
               </ul>
             </div>
-            
+
             <div>
               <h3 className="font-medium text-brown-900 mb-2">Return Policy</h3>
               <ul className="space-y-2 text-gray-700">
@@ -341,47 +342,44 @@ const CheckoutPage = () => {
           <h1 className="text-2xl font-bold text-gray-800 mb-6">Checkout</h1>
 
           <div className="bg-white rounded-lg shadow-sm p-4 md:p-6 mb-6 md:mb-8">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0 overflow-x-auto">  
-            {[1, 2, 3].map((step) => (
-            <React.Fragment key={step}>
-                <div className="flex items-center flex-shrink-0">
-                  <div 
-                    className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
-                      currentStep >= step ? 'bg-red-900 text-white' : 'bg-gray-200 text-gray-600'
-                    }`}
-                  >
-                    {step}
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0 overflow-x-auto">
+              {[1, 2, 3].map((step) => (
+                <React.Fragment key={step}>
+                  <div className="flex items-center flex-shrink-0">
+                    <div
+                      className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${currentStep >= step ? 'bg-red-900 text-white' : 'bg-gray-200 text-gray-600'
+                        }`}
+                    >
+                      {step}
+                    </div>
+                    <div
+                      className={`ml-2 text-sm md:text-base ${currentStep >= step ? 'text-gray-900 font-medium' : 'text-gray-500'
+                        }`}
+                    >
+                      {step === 1 && 'Shipping'}
+                      {step === 2 && 'Payment'}
+                      {step === 3 && 'Review'}
+                    </div>
                   </div>
-                  <div 
-                    className={`ml-2 text-sm md:text-base ${
-                      currentStep >= step ? 'text-gray-900 font-medium' : 'text-gray-500'
-                    }`}
-                  >
-                    {step === 1 && 'Shipping'}
-                    {step === 2 && 'Payment'}
-                    {step === 3 && 'Review'}
-                  </div>
-                </div>
-                {step < 4 && (
-                  <div 
-                    className={`hidden sm:block flex-1 mx-2 md:mx-4 h-1 ${
-                      currentStep > step ? 'bg-red-900' : 'bg-gray-200'
-                    }`}
-                  ></div>
-                )}
-              </React.Fragment>
-            ))}
+                  {step < 4 && (
+                    <div
+                      className={`hidden sm:block flex-1 mx-2 md:mx-4 h-1 ${currentStep > step ? 'bg-red-900' : 'bg-gray-200'
+                        }`}
+                    ></div>
+                  )}
+                </React.Fragment>
+              ))}
             </div>
 
             {/* Mobile progress indicator (alternative to the connecting lines) */}
             <div className="sm:hidden mt-4 w-full bg-gray-200 rounded-full h-2">
-              <div 
-                className="bg-red-900 h-2 rounded-full" 
+              <div
+                className="bg-red-900 h-2 rounded-full"
                 style={{ width: `${(currentStep - 1) * 33.33}%` }}
               ></div>
             </div>
           </div>
-          
+
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Main Content */}
             <div className="lg:col-span-2">
@@ -391,7 +389,7 @@ const CheckoutPage = () => {
                   <div className="p-6 border-b border-gray-200">
                     <h2 className="text-lg font-semibold">Shipping Information</h2>
                   </div>
-                  
+
                   <div className="p-6">
                     <form onSubmit={handleShippingSubmit}>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -399,72 +397,72 @@ const CheckoutPage = () => {
                           <label className="block text-sm font-medium text-gray-700 mb-2">
                             Full Name
                           </label>
-                          <input 
-                            type="text" 
-                            name="name" 
+                          <input
+                            type="text"
+                            name="name"
                             className="input-field w-full border border-gray-400 rounded-md p-2 focus:ring-2 focus:ring-brown-600 focus:outline-none focus:border-transparent"
                             value={formData.name}
                             onChange={handleInputChange}
                             required
                           />
                         </div>
-                        
+
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-2">
                             Phone Number
                           </label>
-                          <input 
-                            type="tel" 
-                            name="phone" 
+                          <input
+                            type="tel"
+                            name="phone"
                             className="input-field w-full border border-gray-400 rounded-md p-2 focus:ring-2 focus:ring-brown-600 focus:outline-none focus:border-transparent"
                             value={formData.phone}
                             onChange={handleInputChange}
                             required
                           />
                         </div>
-                        
+
                         <div className="md:col-span-2">
                           <label className="block text-sm font-medium text-gray-700 mb-2">
                             Email Address
                           </label>
-                          <input 
-                            type="email" 
-                            name="email" 
+                          <input
+                            type="email"
+                            name="email"
                             className="input-field w-full border border-gray-400 rounded-md p-2 focus:ring-2 focus:ring-brown-600 focus:outline-none focus:border-transparent"
                             value={formData.email}
                             onChange={handleInputChange}
                             required
                           />
                         </div>
-                        
+
                         <div className="md:col-span-2">
                           <label className="block text-sm font-medium text-gray-700 mb-2">
                             Street Address
                           </label>
-                          <input 
-                            type="text" 
-                            name="address" 
+                          <input
+                            type="text"
+                            name="address"
                             className="input-field w-full border border-gray-400 rounded-md p-2 focus:ring-2 focus:ring-brown-600 focus:outline-none focus:border-transparent"
                             value={formData.address}
                             onChange={handleInputChange}
                             required
                           />
                         </div>
-                        
+
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-2">
                             City
                           </label>
-                          <input 
-                            type="text" 
-                            name="city" 
+                          <input
+                            type="text"
+                            name="city"
                             className="input-field w-full border border-gray-400 rounded-md p-2 focus:ring-2 focus:ring-brown-600 focus:outline-none focus:border-transparent"
                             value={formData.city}
                             onChange={handleInputChange}
                             required
                           />
                         </div>
-                        
+
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-2">
                             State
@@ -483,27 +481,27 @@ const CheckoutPage = () => {
                             ))}
                           </select>
                         </div>
-                        
+
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-2">
                             Postal Code
                           </label>
-                          <input 
-                            type="text" 
-                            name="postalCode" 
+                          <input
+                            type="text"
+                            name="postalCode"
                             className="input-field w-full border border-gray-400 rounded-md p-2 focus:ring-2 focus:ring-brown-600 focus:outline-none focus:border-transparent"
                             value={formData.postalCode}
                             onChange={handleInputChange}
                             required
                           />
                         </div>
-                        
+
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-2">
                             Country
                           </label>
-                          <select 
-                            name="country" 
+                          <select
+                            name="country"
                             className="input-field w-full border border-gray-400 rounded-md p-2 focus:ring-2 focus:ring-brown-600 focus:outline-none focus:border-transparent"
                             value={formData.country}
                             onChange={handleInputChange}
@@ -513,10 +511,10 @@ const CheckoutPage = () => {
                           </select>
                         </div>
                       </div>
-                      
+
                       <div className="mt-8 flex justify-between">
-                        <Button 
-                          type="button" 
+                        <Button
+                          type="button"
                           variant='outline'
                           className="flex items-center text-red-900 hover:text-red-700"
                           onClick={() => router.push('/cart')}
@@ -524,9 +522,9 @@ const CheckoutPage = () => {
                           <ArrowLeft size={16} className="mr-1" />
                           Back to Cart
                         </Button>
-                        <Button 
+                        <Button
                           variant='primary'
-                          type="submit" 
+                          type="submit"
                           className="btn-primary"
                         >
                           Continue to Payment
@@ -536,23 +534,23 @@ const CheckoutPage = () => {
                   </div>
                 </div>
               )}
-              
+
               {/* Step 2: Payment - Only PhonePe shown */}
               {currentStep === 2 && (
                 <div className="bg-white rounded-lg shadow-sm overflow-hidden">
                   <div className="p-6 border-b border-gray-200">
                     <h2 className="text-lg font-semibold">Payment Method</h2>
                   </div>
-                  
+
                   <div className="p-6">
                     <form onSubmit={handlePaymentSubmit}>
                       <div className="space-y-4">
                         <div className="border border-gray-200 rounded-md p-4 bg-gray-50">
                           <div className="flex items-center">
-                            <input 
-                              type="radio" 
-                              name="paymentMethod" 
-                              value="phonepe" 
+                            <input
+                              type="radio"
+                              name="paymentMethod"
+                              value="phonepe"
                               checked
                               className="h-4 w-4 text-red-900 focus:ring-red-500"
                               readOnly
@@ -566,7 +564,7 @@ const CheckoutPage = () => {
                             </div>
                           </div>
                         </div>
-                        
+
                         <div className="bg-blue-50 p-4 rounded-md border border-blue-100">
                           <p className="text-sm text-blue-800">
                             You'll be securely redirected to PhonePe to complete your payment.
@@ -574,11 +572,11 @@ const CheckoutPage = () => {
                           </p>
                         </div>
                       </div>
-                      
+
                       <div className="mt-8 flex justify-between">
                         <Button
-                          variant='outline' 
-                          type="button" 
+                          variant='outline'
+                          type="button"
                           className="flex items-center text-red-900 hover:text-red-700"
                           onClick={() => setCurrentStep(1)}
                         >
@@ -586,8 +584,8 @@ const CheckoutPage = () => {
                           Back to Shipping
                         </Button>
                         <Button
-                          variant='primary' 
-                          type="submit" 
+                          variant='primary'
+                          type="submit"
                           className="btn-primary"
                         >
                           Continue to Review
@@ -597,14 +595,14 @@ const CheckoutPage = () => {
                   </div>
                 </div>
               )}
-              
+
               {/* Step 3: Review */}
               {currentStep === 3 && (
                 <div className="bg-white rounded-lg shadow-sm overflow-hidden">
                   <div className="p-6 border-b border-gray-200">
                     <h2 className="text-lg font-semibold">Review Your Order</h2>
                   </div>
-                  
+
                   <div className="p-6">
                     <div className="mb-6">
                       <h3 className="text-md font-medium mb-3">Shipping Information</h3>
@@ -617,7 +615,7 @@ const CheckoutPage = () => {
                         </p>
                       </div>
                     </div>
-                    
+
                     <div className="mb-6">
                       <h3 className="text-md font-medium mb-3">Payment Method</h3>
                       <div className="bg-gray-50 p-4 rounded-md">
@@ -625,16 +623,16 @@ const CheckoutPage = () => {
                         <p className="text-sm text-gray-500 mt-1">You'll complete payment on PhonePe's secure platform</p>
                       </div>
                     </div>
-                    
+
                     <div className="mb-6">
                       <h3 className="text-md font-medium mb-3">Order Items</h3>
                       <div className="bg-gray-50 p-4 rounded-md">
                         <div className="divide-y divide-gray-200">
                           {items.map(item => (
                             <div key={item._id} className="py-3 flex items-center">
-                              <img 
-                                src={item.image} 
-                                alt={item.name} 
+                              <img
+                                src={item.image}
+                                alt={item.name}
                                 className="w-16 h-16 object-cover rounded-md mr-4"
                               />
                               <div className="flex-1">
@@ -649,7 +647,7 @@ const CheckoutPage = () => {
                         </div>
                       </div>
                     </div>
-                    
+
                     <div className="mb-8">
                       <h3 className="text-md font-medium mb-3">Order Summary</h3>
                       <div className="bg-gray-50 p-4 rounded-md">
@@ -672,7 +670,7 @@ const CheckoutPage = () => {
                               <span className="text-red-900">₹{grandTotal.toFixed(2)}</span>
                             </div>
                           </div>
-                        </div>   
+                        </div>
                       </div>
                     </div>
 
@@ -706,20 +704,20 @@ const CheckoutPage = () => {
                         </p>
                       )}
                     </div>
-                    
+
                     <div className="flex justify-between">
-                      <Button 
+                      <Button
                         variant='outline'
-                        type="button" 
+                        type="button"
                         className="flex items-center text-red-900 hover:text-red-700"
                         onClick={() => setCurrentStep(2)}
                       >
                         <ArrowLeft size={16} className="mr-1" />
                         Back to Payment
                       </Button>
-                      <Button 
+                      <Button
                         variant='primary'
-                        type="button" 
+                        type="button"
                         className="btn-primary"
                         onClick={handlePlaceOrder}
                         disabled={isProcessing || !hasAcceptedShippingConditions}
@@ -731,21 +729,21 @@ const CheckoutPage = () => {
                 </div>
               )}
             </div>
-            
+
             {/* Order Summary */}
             <div className="lg:col-span-1">
               <div className="bg-white rounded-lg shadow-sm overflow-hidden sticky top-24">
                 <div className="p-4 border-b border-gray-200">
                   <h3 className="text-lg font-semibold">Order Summary</h3>
                 </div>
-                
+
                 <div className="p-4">
                   <div className="max-h-64 overflow-y-auto mb-4">
                     {items.map(item => (
                       <div key={item._id} className="flex items-center py-2 border-b border-gray-100">
-                        <img 
-                          src={item.image} 
-                          alt={item.name} 
+                        <img
+                          src={item.image}
+                          alt={item.name}
                           className="w-12 h-12 object-cover rounded-md mr-3"
                         />
                         <div className="flex-1">
@@ -758,7 +756,7 @@ const CheckoutPage = () => {
                       </div>
                     ))}
                   </div>
-                  
+
                   <div className="space-y-2">
                     <div className="flex justify-between text-sm">
                       <span className="text-gray-600">Subtotal</span>
@@ -773,14 +771,14 @@ const CheckoutPage = () => {
                       <span>Included</span>
                     </div>
                   </div>
-                  
+
                   <div className="border-t border-gray-200 mt-4 pt-4">
                     <div className="flex justify-between font-semibold">
                       <span>Total</span>
                       <span className="text-red-900">₹{grandTotal.toFixed(2)}</span>
                     </div>
                   </div>
-                  
+
                   <div className="mt-6 space-y-4">
                     <div className="flex items-center text-sm text-gray-600">
                       <Truck size={16} className="mr-2 text-green-600" />
@@ -796,7 +794,7 @@ const CheckoutPage = () => {
             </div>
           </div>
         </div>
-        
+
         {/* Shipping Conditions Dialog */}
         {showShippingConditions && <ShippingConditionsDialog />}
       </div>
