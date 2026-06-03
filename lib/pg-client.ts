@@ -1,4 +1,4 @@
-import { StandardCheckoutClient, Env } from "pg-sdk-node";
+import { StandardCheckoutClient, Env } from "@phonepe-pg/pg-sdk-node";
 import { randomUUID } from "crypto";
 
 const clientId = process.env.PHONEPE_ENV === "UAT" ? process.env.PHONEPE_UAT_CLIENT_ID as string : process.env.PHONEPE_CLIENT_ID as string;

@@ -21,7 +21,7 @@
     "mongoose": "^8.16.2",
     "next": "15.3.5",
     "next-cloudinary": "^6.16.0",
-    "pg-sdk-node": "https://phonepe.mycloudrepo.io/public/repositories/phonepe-pg-sdk-node/releases/v2/phonepe-pg-sdk-node.tgz",
+    "@phonepe-pg/pg-sdk-node": "^2.0.5",
     "qs": "^6.14.0",
     "react": "^19.0.0",
     "react-chartjs-2": "^5.3.0",

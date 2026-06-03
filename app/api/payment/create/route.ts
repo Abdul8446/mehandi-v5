@@ -1,7 +1,7 @@
 // app/api/payment/create/route.ts
 import { NextResponse } from "next/server";
 import { getClient, randomUUID } from "@/lib/pg-client";
-import { StandardCheckoutPayRequest, UpiIntentPayRequestBuilder, UpiQrPaymentV2Instrument } from "pg-sdk-node";
+import { StandardCheckoutPayRequest, UpiIntentPayRequestBuilder, UpiQrPaymentV2Instrument } from "@phonepe-pg/pg-sdk-node";
 import { CreateOrderRequest, CreateOrderResponse, ErrorResponse } from "@/types/payment";
 
 export async function POST(request: Request) {
