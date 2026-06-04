@@ -11,20 +11,6 @@ import BookingDetailsStep from '@/components/booking/BookingDetailsStep';
 import ConfirmationStep from '@/components/booking/ConfirmationStep';
 import BookingSteps from '@/components/booking/BookingSteps';
 
-// Generate available dates (30 days from day after tomorrow)
-const generateDates = () => {
-  const dates = [];
-  const dayAfterTomorrow = new Date();
-  dayAfterTomorrow.setDate(dayAfterTomorrow.getDate() + 2); // Skip tomorrow
-  
-  for (let i = 0; i < 30; i++) {
-    const nextDate = new Date(dayAfterTomorrow);
-    nextDate.setDate(dayAfterTomorrow.getDate() + i);
-    dates.push(nextDate);
-  }
-  
-  return dates;
-};
 
 // Generate time slots
 const timeSlots = [
@@ -53,31 +39,98 @@ const Booking = () => {
     specialRequirements: ''
   });
   const [plans, setPlans] = useState<any[]>([]);
-  const [loading, setLoading] = useState(plans.length === 0);
+  const [loading, setLoading] = useState(true);
+  const [bookingSettings, setBookingSettings] = useState<any>(null);
   // ... other state declarations
 
   console.log(selectedPlan, 'selectedPlan');
 
   useEffect(() => {
-    const fetchPlans = async () => {
+    const fetchData = async () => {
       try {
-        const res = await fetch('/api/plans');
-        const data = await res.json();
-        console.log(data, 'data');
-        setPlans(data);
+        const [plansRes, settingsRes] = await Promise.all([
+          fetch('/api/plans'),
+          fetch('/api/booking-settings')
+        ]);
+        
+        if (plansRes.ok) {
+          const data = await plansRes.json();
+          setPlans(data);
+        }
+        
+        if (settingsRes.ok) {
+          const settingsData = await settingsRes.json();
+          setBookingSettings(settingsData);
+        }
       } catch (err) {
-        toast.error("Failed to load plans");
+        toast.error("Failed to load data");
       } finally {
         setLoading(false)
       }
     };
-    fetchPlans();
+    fetchData();
   }, []);
   console.log(plans)
 
   const { isAuthenticated } = useAuth();
   const router = useRouter();
-  const availableDates = generateDates();
+  
+  const generateDates = (data: any) => {
+    if (!data || !data.settings) return [];
+    
+    const settings = data.settings;
+    const confirmedDates = data.confirmedDates || [];
+    
+    const dates = [];
+    let startDate = new Date();
+    // Reset time to start of day for consistent comparison
+    startDate.setHours(0, 0, 0, 0);
+    
+    // Fixed start offset of 2 days
+    startDate.setDate(startDate.getDate() + 2);
+    
+    // Dynamic duration from settings
+    const duration = settings.durationDays ?? 30;
+    
+    let endDate = new Date(startDate);
+    endDate.setDate(startDate.getDate() + duration - 1);
+    
+    const blockedDates = settings.blockedDates || [];
+    const blockedRanges = settings.blockedRanges || [];
+    const blockedDaysOfWeek = settings.blockedDaysOfWeek || [];
+    
+    const formatDateStr = (d: Date) => {
+      const year = d.getFullYear();
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    };
+    
+    const isDateInRange = (dateStr: string, start: string, end: string) => {
+      return dateStr >= start && dateStr <= end;
+    };
+    
+    const currentDate = new Date(startDate);
+    while (currentDate <= endDate) {
+      const dateStr = formatDateStr(currentDate);
+      const dayOfWeek = currentDate.getDay(); // 0 is Sunday, 6 is Saturday
+      
+      const isBlockedDate = blockedDates.includes(dateStr);
+      const isConfirmedDate = confirmedDates.includes(dateStr);
+      const isWeeklyOff = blockedDaysOfWeek.includes(dayOfWeek);
+      const isRangeClosed = blockedRanges.some((r: any) => isDateInRange(dateStr, r.startDate, r.endDate));
+      
+      if (!isBlockedDate && !isConfirmedDate && !isWeeklyOff && !isRangeClosed) {
+        dates.push(new Date(currentDate));
+      }
+      
+      currentDate.setDate(currentDate.getDate() + 1);
+    }
+    
+    return dates;
+  };
+
+  const availableDates = generateDates(bookingSettings);
 
   const handlePlanSelect = (plan: any) => {
     setSelectedPlan(plan);
@@ -163,6 +216,7 @@ const Booking = () => {
             // onTimeSlotSelect={handleTimeSlotSelect}
             onContinue={handleContinue}
             onBack={() => setStep(1)}
+            labelText={bookingSettings?.settings?.labelText}
           />
         )}
 
