@@ -17,7 +17,9 @@ export function Providers({ children }: { children: React.ReactNode }) {
                         <BookingProvider>
                             <CartProvider>
                                 <WishlistProvider>
-                                    {children}
+                                    <MaintenanceWrapper>
+                                        {children}
+                                    </MaintenanceWrapper>
                                 </WishlistProvider>
                             </CartProvider>
                         </BookingProvider>
