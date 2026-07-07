@@ -27,7 +27,7 @@ export async function POST(request: Request) {
     const requestBody = builder.build();
     // Workaround for missing fields in SDK typing
     (requestBody as any).merchantUserId = userId || 'MUID-' + randomUUID();
-    (requestBody as any).callbackUrl = redirectUrl;
+    (requestBody as any).callbackUrl = process.env.PHONEPE_WEBHOOK_URL;
     (requestBody as any).mobileNumber = mobileNumber;
 
     console.log("Initiating payment with request body:", requestBody);

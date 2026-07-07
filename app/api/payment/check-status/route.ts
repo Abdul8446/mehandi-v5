@@ -2,9 +2,11 @@
 import { NextResponse } from 'next/server';
 import { getClient } from '@/lib/pg-client';
 import Order from '@/models/Order';
+import dbConnect from '@/lib/mongoose';
 
 export async function GET(request: Request) {
   try {
+    await dbConnect();
     const { searchParams } = new URL(request.url);
     const merchantOrderId = searchParams.get('merchantOrderId');
     const errorCode = searchParams.get('errorCode');
@@ -14,6 +16,16 @@ export async function GET(request: Request) {
         { success: false, error: 'missing_order_id' },
         { status: 400 }
       );
+    }
+
+    // Database-first optimization: If the webhook processed this already, we can return safely
+    const existingOrder = await Order.findOne({ orderId: merchantOrderId });
+    if (existingOrder?.paymentStatus === 'Paid') {
+      return NextResponse.json({
+        success: true,
+        redirectUrl: `/order-confirmation/${merchantOrderId}?clearCart=true`,
+        status: 'Paid'
+      });
     }
 
     const client = getClient();

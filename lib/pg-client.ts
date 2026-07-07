@@ -6,13 +6,18 @@ const clientSecret = process.env.PHONEPE_ENV === "UAT" ? process.env.PHONEPE_UAT
 const clientVersion = 1 as number;
 const env = process.env.PHONEPE_ENV === "UAT" ? Env.SANDBOX : Env.PRODUCTION; // Change to Env.PRODUCTION when going live
 
+const globalForPhonePe = global as unknown as { phonePeClient: StandardCheckoutClient };
+
 export const getClient = () => {
-  return StandardCheckoutClient.getInstance(
-    clientId,
-    clientSecret,
-    clientVersion,
-    env
-  );
+  if (!globalForPhonePe.phonePeClient) {
+    globalForPhonePe.phonePeClient = StandardCheckoutClient.getInstance(
+      clientId,
+      clientSecret,
+      clientVersion,
+      env
+    );
+  }
+  return globalForPhonePe.phonePeClient;
 };
 
 export { randomUUID };
