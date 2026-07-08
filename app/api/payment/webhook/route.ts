@@ -3,46 +3,59 @@ import { getClient } from '@/lib/pg-client';
 import Order from '@/models/Order';
 import dbConnect from '@/lib/mongoose';
 
+import crypto from 'crypto';
+
 export async function POST(request: Request) {
   try {
     await dbConnect();
-    const authorization = request.headers.get('authorization');
+
+    const rawBodyText = await request.text();
+    let bodyData;
+    try {
+      bodyData = JSON.parse(rawBodyText);
+    } catch (e) {
+      return NextResponse.json({ success: false, error: 'Invalid JSON' }, { status: 400 });
+    }
+
+    const xVerify = request.headers.get('x-verify');
     
-    if (!authorization) {
-      console.warn("Webhook unauthorized attempt missing header");
+    if (xVerify && bodyData.response) {
+      // Retrieve the correct credentials (sandbox vs prod)
+      const clientSecret = process.env.PHONEPE_ENV === "UAT" ? process.env.PHONEPE_UAT_CLIENT_SECRET : process.env.PHONEPE_CLIENT_SECRET;
+      const clientVersion = 1;
+
+      if (!clientSecret) {
+         console.error("Missing PhonePe client secret in .env");
+         return NextResponse.json({ success: false, error: 'Server misconfigured' }, { status: 500 });
+      }
+
+      // Checksum = sha256(base64Payload + saltKey) + "###" + saltIndex
+      const expectedHash = crypto.createHash('sha256').update(bodyData.response + clientSecret).digest('hex');
+      const expectedXVerify = `${expectedHash}###${clientVersion}`;
+
+      if (xVerify !== expectedXVerify) {
+        console.error("PhonePe Webhook X-Verify Validation Failed");
+        return NextResponse.json({ success: false, error: 'Invalid signature' }, { status: 400 });
+      }
+    } else {
+      console.warn("Webhook unauthorized attempt missing x-verify header");
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
     }
 
-    const rawBody = await request.text();
-    const client = getClient();
+    // Decode the base64 PhonePe response payload
+    const decodedResponse = Buffer.from(bodyData.response, 'base64').toString('utf-8');
+    const parsedPayload = JSON.parse(decodedResponse);
     
-    const username = process.env.PHONEPE_WEBHOOK_USERNAME as string;
-    const password = process.env.PHONEPE_WEBHOOK_PASSWORD as string;
+    // Extract data depending on API version structure
+    const payload = parsedPayload.data || parsedPayload.payload || parsedPayload;
     
-    let callbackResponse;
-    try {
-      // Validate the callback securely using the SDK
-      callbackResponse = client.validateCallback(
-        username,
-        password,
-        authorization,
-        rawBody
-      );
-    } catch (validationError: any) {
-      console.error("PhonePe Webhook Validation Failed:", validationError.message);
-      return NextResponse.json({ success: false, error: 'Invalid signature or credentials' }, { status: 400 });
-    }
-
-    // PhonePe callback usually contains payload.merchantOrderId or payload.orderId
-    const orderId = callbackResponse?.payload?.merchantOrderId || callbackResponse?.payload?.orderId;
-    const state = callbackResponse?.payload?.state;
+    const orderId = payload.merchantTransactionId || payload.merchantOrderId || payload.orderId;
+    const paymentStatus = (parsedPayload.code === 'PAYMENT_SUCCESS' || payload.state === 'COMPLETED' || payload.state === 'PAYMENT_SUCCESS') ? 'Paid' : 'Failed';
 
     if (!orderId) {
-      console.error("PhonePe Webhook Invalid Payload:", callbackResponse);
+      console.error("PhonePe Webhook Invalid Payload:", parsedPayload);
       return NextResponse.json({ success: false, error: 'Invalid payload, missing orderId' }, { status: 400 });
     }
-
-    const paymentStatus = state === "COMPLETED" ? 'Paid' : 'Failed';
 
     // Idempotent update: Even if /check-status ran first, this is safe and will just overwrite identically.
     await Order.findOneAndUpdate(
@@ -51,7 +64,7 @@ export async function POST(request: Request) {
       { new: true }
     );
 
-    console.log(`Webhook successfully processed order ${orderId} as ${paymentStatus}`);
+    console.log(`✅ Webhook successfully processed order ${orderId} as ${paymentStatus}`);
     
     // Always return 200 OK so PhonePe knows we received it
     return NextResponse.json({ success: true, message: 'Webhook processed successfully' });
