@@ -28,12 +28,17 @@ export async function POST(request: Request) {
       const username = process.env.PHONEPE_WEBHOOK_USERNAME as string;
       const password = process.env.PHONEPE_WEBHOOK_PASSWORD as string;
       
-      const expectedSha256 = crypto.createHash('sha256').update(username + ':' + password).digest('hex');
-      // Some versions just hash username:password, some hash {username:password}. We'll use the SDK to be safe.
+      // PhonePe might send it as "Basic <hash>" or "Bearer <hash>". Let's strip prefixes to be safe.
+      let cleanAuth = authorization.trim();
+      if (cleanAuth.toLowerCase().startsWith('basic ')) cleanAuth = cleanAuth.substring(6).trim();
+      if (cleanAuth.toLowerCase().startsWith('bearer ')) cleanAuth = cleanAuth.substring(7).trim();
       
+      console.log(`Webhook Debug: Username=${username ? 'Set' : 'Missing'}, Password=${password ? 'Set' : 'Missing'}`);
+      console.log(`Webhook Debug: Received Auth Header Prefix: ${authorization.substring(0, 10)}...`);
+
       const client = getClient();
       try {
-        const callbackResponse = client.validateCallback(username, password, authorization, rawBodyText);
+        const callbackResponse = client.validateCallback(username, password, cleanAuth, rawBodyText);
         const payloadData: any = callbackResponse?.payload;
         orderId = payloadData?.merchantOrderId || payloadData?.orderId;
         paymentStatus = (payloadData?.state === 'COMPLETED' || payloadData?.code === 'PAYMENT_SUCCESS') ? 'Paid' : 'Failed';
