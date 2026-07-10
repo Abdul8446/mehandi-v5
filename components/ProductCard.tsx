@@ -213,7 +213,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         </motion.div>
 
         {/* Content */}
-        <div className="flex flex-col flex-grow p-4">
+        <div className="flex flex-col flex-grow p-3 sm:p-4">
           {/* Rating with animation */}
           <motion.div 
             className="flex items-center mb-1"
@@ -223,7 +223,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
               {[1, 2, 3, 4, 5].map((star) => (
                 <Star
                   key={star}
-                  size={14}
+                  size={12}
                   fill={
                     product.rating && star <= Math.floor(product.rating)
                       ? '#f59e0b'
@@ -237,38 +237,38 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                 />
               ))}
             </div>
-            <span className="text-xs text-gray-500 ml-1">
+            <span className="text-[10px] sm:text-xs text-gray-500 ml-1">
               ({product.reviewsCount})
             </span>
           </motion.div>
 
           {/* Title and Category */}
           <motion.h3 
-            className="text-sm font-medium text-gray-900 mb-1"
+            className="text-xs sm:text-sm font-medium text-gray-900 mb-1 line-clamp-2 h-8 sm:h-10 overflow-hidden"
             variants={priceVariants}
             whileHover="hover"
           >
             {product.name}
           </motion.h3>
-          <p className="text-xs text-gray-500">{product.category}</p>
+          <p className="text-[10px] sm:text-xs text-gray-500 truncate">{product.category}</p>
 
           {/* Price and Add to Cart */}
           <motion.div 
-            className="flex items-center justify-between mt-4"
+            className="flex items-center justify-between mt-auto pt-2 pr-12 sm:pr-0"
             layout
           >
             <motion.div layout>
               {product?.discount > 0 ? (
-                <div className="flex items-center">
+                <div className="flex flex-wrap items-center">
                   <motion.span 
-                    className="text-lg font-bold text-amber-700"
+                    className="text-sm sm:text-lg font-bold text-amber-700"
                     variants={priceVariants}
                     whileHover="hover"
                   >
                     ₹{product.price}
                   </motion.span>
                   <motion.span 
-                    className="ml-2 text-sm text-gray-500 line-through"
+                    className="ml-1.5 sm:ml-2 text-xs sm:text-sm text-gray-500 line-through"
                     variants={priceVariants}
                     whileHover="hover"
                   >
@@ -277,7 +277,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                 </div>
               ) : (
                 <motion.span 
-                  className="text-lg font-bold text-amber-700"
+                  className="text-sm sm:text-lg font-bold text-amber-700"
                   variants={priceVariants}
                   whileHover="hover"
                 >
@@ -382,7 +382,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           handleAddToCart(e);
         }}
         disabled={product.stock===product.reserved || addToCartLoadingProductId === product._id}
-        className={`flex absolute bottom-3 ${product.stock===product.reserved? '':''} right-3 items-center justify-center px-3 py-2 rounded-md text-sm no-redirect ${
+        className={`flex absolute bottom-2.5 right-2.5 sm:bottom-3 sm:right-3 items-center justify-center px-2 py-1.5 sm:px-3 sm:py-2 rounded-md text-xs sm:text-sm no-redirect ${
           product.stock!==product.reserved
             ? 'bg-amber-600 text-white hover:bg-amber-700'
             : 'bg-gray-200 text-gray-500 cursor-not-allowed'

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
@@ -67,11 +67,24 @@ const itemVariants = {
 const CategorySection = () => {
   const router = useRouter();
   const [isAnimating, setIsAnimating] = useState(false);
+  const [activeCategoryId, setActiveCategoryId] = useState<string | null>(null);
 
-  const handleClick = (e: React.MouseEvent, href: string) => {
+  useEffect(() => {
+    const handleOutsideClick = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      if (!target.closest('.category-card-wrapper')) {
+        setActiveCategoryId(null);
+      }
+    };
+    document.addEventListener('click', handleOutsideClick);
+    return () => document.removeEventListener('click', handleOutsideClick);
+  }, []);
+
+  const handleClick = (e: React.MouseEvent, id: string, href: string) => {
     e.preventDefault();
-    if (isAnimating) return;
+    setActiveCategoryId(id);
     
+    if (isAnimating) return;
     setIsAnimating(true);
     
     // Wait for animations to complete (300ms)
@@ -82,7 +95,7 @@ const CategorySection = () => {
   };
   return (
     <section className="py-16 bg-white">
-      <div className="container mx-auto px-4">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -97,7 +110,7 @@ const CategorySection = () => {
         </motion.div>
         
         <motion.div 
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
+          className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6"
           variants={containerVariants}
           initial="hidden"
           whileInView="visible"
@@ -107,12 +120,12 @@ const CategorySection = () => {
             <motion.div 
               key={category.id}
               variants={itemVariants}
-              className="group block relative overflow-hidden rounded-lg shadow-lg hover:shadow-xl transition-all ease-in duration-300"
+              className="category-card-wrapper select-none group block relative overflow-hidden rounded-lg shadow-lg hover:shadow-xl transition-all ease-in duration-300"
               whileTap={{ scale: 0.98 }} // Add a slight tap effect
             >
               <div 
                 className="relative block"
-                onClick={(e) => handleClick(e, `/shop?category=${category.name}`)}
+                onClick={(e) => handleClick(e, category.id, `/shop?category=${category.name}`)}
               >
                 {/* Image with tap/hover zoom */}
                 <motion.div 
@@ -126,27 +139,33 @@ const CategorySection = () => {
                     width={1260}
                     height={750}
                     style={{objectPosition: category.position === 'right top' ? 'right top' : 'center'}}
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110 group-active:scale-110"
+                    className={`w-full h-full object-cover transition-transform duration-500 group-hover:scale-110 group-active:scale-110 ${
+                      activeCategoryId === category.id ? 'scale-110' : ''
+                    }`}
                   />
                 </motion.div>
                 
                 {/* Overlay with tap/hover effects */}
                 <motion.div 
-                  className="absolute inset-0 bg-gradient-to-t from-amber-900/70 to-transparent flex flex-col justify-end p-6 text-white"
+                  className="absolute inset-0 bg-gradient-to-t from-amber-900/70 to-transparent flex flex-col justify-end p-4 sm:p-6 text-white"
                   initial={false}
                   animate={{
                     '--overlay-opacity': ['group-hover:opacity-100', 'group-active:opacity-100'],
                     '--text-translate': ['group-hover:translate-y-0', 'group-active:translate-y-0']
                   }}
                 >
-                  <h3 className="text-xl font-medium mb-1">
+                  <h3 className="text-lg sm:text-xl font-medium mb-1">
                     {category.name}
                   </h3>
-                  <p className="text-sm text-amber-100 mb-2">
+                  <p className="text-xs sm:text-sm text-amber-100 mb-2 line-clamp-2 sm:line-clamp-none">
                     {category.description}
                   </p>
                   <motion.span 
-                    className="inline-block text-sm font-medium border-b-2 border-amber-500 pb-1 opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 group-active:opacity-100 group-active:translate-y-0 transition-all duration-300"
+                    className={`inline-block text-xs sm:text-sm font-medium border-b-2 border-amber-500 pb-1 transition-all duration-150 ease-out ${
+                      activeCategoryId === category.id 
+                        ? 'opacity-100 translate-y-0' 
+                        : 'opacity-0 translate-y-1 group-hover:opacity-100 group-hover:translate-y-0 group-active:opacity-100 group-active:translate-y-0'
+                    }`}
                   >
                     Explore Collection
                   </motion.span>

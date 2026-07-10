@@ -44,7 +44,7 @@ const OrderConfirmationComponent = () => {
           
           // Only clear cart AFTER successful order confirmation
           if (isConfirmClearCart && items.length > 0) {
-            await clearCart();
+            await clearCart(true);
             // Remove the clearCart param from URL
             router.replace(`/order-confirmation/${orderId}`);
           }

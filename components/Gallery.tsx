@@ -1,10 +1,12 @@
 'use client';
 import React from 'react';
+import Link from 'next/link';
 
 
 interface VideoGalleryProps {  
-    id?: string; // Optional ID for the section
+  id?: string;
 }
+
 
 export default function VideoGallery({ id }: VideoGalleryProps) {
   // Sample media data - in a real app, this could come from an API or file system
@@ -154,6 +156,15 @@ export default function VideoGallery({ id }: VideoGalleryProps) {
                 </div>
               </div>
             ))}
+          </div>
+          
+          <div className="text-center mt-10">
+            <Link 
+              href="/gallery" 
+              className="inline-block px-8 py-3.5 bg-amber-800 text-white rounded-full font-semibold hover:bg-amber-700 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-0.5"
+            >
+              See Our Latest Works
+            </Link>
           </div>
         </div>
       </section>

@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { getClient } from '@/lib/pg-client';
 import Order from '@/models/Order';
 import dbConnect from '@/lib/mongoose';
+import { processSuccessfulPayment } from '@/lib/orderPayment';
 
 import crypto from 'crypto';
 
@@ -81,11 +82,15 @@ export async function POST(request: Request) {
     }
 
     // Idempotent update: Even if /check-status ran first, this is safe and will just overwrite identically.
-    await Order.findOneAndUpdate(
-      { orderId: orderId },
-      { paymentStatus: paymentStatus },
-      { new: true }
-    );
+    if (paymentStatus === 'Paid') {
+      await processSuccessfulPayment(orderId);
+    } else {
+      await Order.findOneAndUpdate(
+        { orderId: orderId },
+        { paymentStatus: paymentStatus },
+        { new: true }
+      );
+    }
 
     console.log(`✅ Webhook successfully processed order ${orderId} as ${paymentStatus}`);
     

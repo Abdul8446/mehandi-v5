@@ -246,7 +246,7 @@ interface CartContextType {
   removeFromCart: (productId: string) => Promise<void>;
   updateQuantity: (productId: string, quantity: number) => Promise<void>;
   updateQuantityLoading: boolean;
-  clearCart: () => Promise<void>;
+  clearCart: (isOrderCompleted?: boolean) => Promise<void>;
   totalItems: number;
   totalWeight: number;
   totalPrice: number;
@@ -750,8 +750,8 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // Calculate cart totals
  
-  const clearCart = async () => {
-    console.log('clear cart called');
+  const clearCart = async (isOrderCompleted: boolean = false) => {
+    console.log('clear cart called', { isOrderCompleted });
     if (!isAuthenticated) {
       throw new Error('You must be logged in to modify your cart');
     }
@@ -766,46 +766,30 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
 
     try {
-      // 1. Process stock updates
-      await Promise.all(currentItems.map(async (item) => {
-        console.log('Processing stock for:', item._id);
-        const response = await fetch(`/api/products/${item._id}/stock`, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${user?.token}`
-          },
-          body: JSON.stringify({
-            quantity: item.quantity,
-            action: 'fulfill-order'
-          })
-        });
-        
-        if (!response.ok) {
-          throw new Error(`Stock update failed for ${item.name}`);
-        }
-        return response.json();
-      }));
-
-      // 2. Release reservations
-      await Promise.all(currentItems.map(async (item) => {
-        console.log('Releasing reservation for:', item._id);
-        const response = await fetch(`/api/products/${item._id}/stock`, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${user?.token}`
-          },
-          body: JSON.stringify({
-            quantity: item.quantity,
-            action: 'release'
-          })
-        });
-        
-        if (!response.ok) {
-          console.error(`Reservation release failed for ${item.name}`);
-        }
-      }));
+      // If the order has already been paid/completed, the server-side payment processing
+      // (in the webhook or check-status endpoint) has already decremented the stock
+      // and released the reservations. In that case, we skip these client-side PUT calls.
+      if (!isOrderCompleted) {
+        // Release reservations (since cart is expiring or being manually cleared, not purchased)
+        await Promise.all(currentItems.map(async (item) => {
+          console.log('Releasing reservation for:', item._id);
+          const response = await fetch(`/api/products/${item._id}/stock`, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${user?.token}`
+            },
+            body: JSON.stringify({
+              quantity: item.quantity,
+              action: 'release'
+            })
+          });
+          
+          if (!response.ok) {
+            console.error(`Reservation release failed for ${item.name}`);
+          }
+        }));
+      }
 
       // 3. Clear server cart
       const deleteResponse = await fetch('/api/cart', {

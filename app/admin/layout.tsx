@@ -6,7 +6,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import {
   LayoutDashboard, Package, ShoppingBag, Users,
   Calendar, BookOpen, UserCheck, BarChart2,
-  Settings, LogOut, Menu, X, Bell
+  Settings, LogOut, Menu, X, Bell, Image as ImageIcon
 } from 'lucide-react';
 import { useAdminAuth } from '../../contexts/AdminAuthContext'; // Adjust path as needed
 
@@ -62,6 +62,7 @@ const AdminLayout = ({ children }: { children: React.ReactNode }) => {
       case '/admin/artists': return 'Artists Management';
       case '/admin/reports': return 'Reports & Analytics';
       case '/admin/settings': return 'Site Settings';
+      case '/admin/gallery': return 'Gallery Management';
       default: return '';
     }
   };
@@ -106,6 +107,7 @@ const AdminLayout = ({ children }: { children: React.ReactNode }) => {
                 { href: '/admin', icon: LayoutDashboard, label: 'Dashboard' },
                 { href: '/admin/products', icon: Package, label: 'Products' },
                 { href: '/admin/orders', icon: ShoppingBag, label: 'Orders' },
+                { href: '/admin/gallery', icon: ImageIcon, label: 'Gallery' },
                 { href: '/admin/users', icon: Users, label: 'Users' },
                 { href: '/admin/bookings', icon: Calendar, label: 'Bookings' },
                 { href: '/admin/class-schedule', icon: BookOpen, label: 'Class Schedule' },

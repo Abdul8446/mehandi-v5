@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server';
 import { getClient } from '@/lib/pg-client';
 import Order from '@/models/Order';
 import dbConnect from '@/lib/mongoose';
+import { processSuccessfulPayment } from '@/lib/orderPayment';
 
 export async function GET(request: Request) {
   try {
@@ -43,7 +44,12 @@ export async function GET(request: Request) {
     // Normal status check flow
     const response = await client.getOrderStatus(merchantOrderId);
     const paymentStatus = response.state === "COMPLETED" ? 'Paid' : 'Failed';
-    await updateOrderStatus(merchantOrderId, paymentStatus);
+    
+    if (paymentStatus === 'Paid') {
+      await processSuccessfulPayment(merchantOrderId);
+    } else {
+      await updateOrderStatus(merchantOrderId, paymentStatus);
+    }
 
     // Return JSON with redirect URL instead of actual redirect
     if (paymentStatus === 'Paid') {
