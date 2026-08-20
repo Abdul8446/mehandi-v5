@@ -826,7 +826,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     items.length === 1 && 
     items[0].name.toLowerCase() === 'test';
 
-  const shippingCost = isTestProductSpecialCase ? 0 : (shippingState === 'Kerala' ? (totalWeight <= 400 ? 50 : 80) : 80);
+  const shippingCost = isTestProductSpecialCase ? 0 : 85;
   const grandTotal = isTestProductSpecialCase ? 1 : (totalPrice + shippingCost);
 
   return (
